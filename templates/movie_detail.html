@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie.title }} - Hexa Flix</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    
+</head>
+<body>
+    <header>
+        <a href="{{ url_for('home') }}" class="site-logo">Hexa Flix</a>
+        <div class="search-form">
+            <form action="{{ url_for('search') }}" method="get">
+                <input type="text" class="search-bar" name="query" placeholder="Search...">
+            </form>
+        </div>
+    </header>
+
+    <div class="container detail-container">
+        <div class="poster">
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+        </div>
+        <div class="details">
+            <h1>{{ movie.title }}</h1>
+            <p class="tagline">{{ movie.tagline }}</p>
+            <p>{{ movie.overview }}</p>
+            <a href="{{ url_for('player', movie_id=movie.id) }}" class="play-button">Watch Now</a>
+            <div class="stats">
+                <p><strong>Release Date:</strong> {{ movie.release_date }}</p>
+                <p><strong>Runtime:</strong> {{ movie.runtime }} minutes</p>
+                <p><strong>Rating:</strong> {{ movie.vote_average }} / 10</p>
+            </div>
+            <div class="genres">
+                <strong>Genres:</strong>
+                {% for genre in movie.genres %}
+                    <span>{{ genre.name }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
