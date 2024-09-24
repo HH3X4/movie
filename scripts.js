@@ -1,4 +1,4 @@
-const apiKey = 'YOUR_TMDB_API_KEY'; // Replace with your TMDb API key
+const apiKey = '8391e2d3dbcc1df8d4716820aee5fdc4'; // Replace with your TMDb API key
 
 // Function to fetch popular movies
 async function fetchPopularMovies() {
