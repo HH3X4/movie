@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details - Hexa Flix</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1 class="site-logo">Hexa Flix</h1>
+        <form id="searchForm">
+            <input type="text" id="searchInput" placeholder="Search...">
+        </form>
+    </header>
+
+    <div class="container" id="movieDetailContainer">
+        <h2 id="movieTitle"></h2>
+        <img id="moviePoster" alt="Movie Poster">
+        <p id="movieOverview"></p>
+        <p><strong>Release Date:</strong> <span id="movieReleaseDate"></span></p>
+        <p><strong>Rating:</strong> <span id="movieRating"></span></p>
+        <a id="playButton" href="#">Watch Now</a>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
