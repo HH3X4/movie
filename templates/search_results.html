@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results for "{{ query }}"</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <a href="{{ url_for('home') }}" class="site-logo">Hexa Flix</a>
+        <div class="search-form">
+            <form action="{{ url_for('search') }}" method="get">
+                <input type="text" class="search-bar" name="query" placeholder="Search...">
+            </form>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="movie-grid">
+            {% if movies %}
+                {% for movie in movies %}
+                    <div class="movie-item">
+                        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+                        <div class="info">
+                            <h3>{{ movie.title }}</h3>
+                            <p>{{ movie.release_date }}</p>
+                            <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" class="details-button">Details</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No results found for "{{ query }}"</p>
+            {% endif %}
+        </div>
+
+        <div class="pagination">
+            {% if page > 1 %}
+                <a href="{{ url_for('search', query=query, page=page-1) }}">Previous</a>
+            {% endif %}
+
+            <span>Page {{ page }} of {{ total_pages }}</span>
+            {% if page < total_pages %}
+            <a href="{{ url_for('search', query=query, page=page+1) }}">Next</a>
+            {% endif %}
+            </div>
+        </div>
+    </body>
+</html>
