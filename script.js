@@ -50,6 +50,12 @@ function displayMovies(movies) {
     });
 }
 
+// Function to play the movie
+function playMovie(movieId) {
+    // Redirect to the player page with movie ID as a query parameter
+    window.location.href = `player.html?id=${movieId}`; // Use query parameter to pass movie ID
+}
+
 // Function to show movie details
 async function showMovieDetails(movieId) {
     try {
