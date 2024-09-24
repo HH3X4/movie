@@ -1,15 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Popular Movies</title>
-  <link rel="stylesheet" href="assets/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popular Movies - Hexa Flix</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Popular Movies</h1>
-  <div id="movie-list"></div>
+    <header>
+        <h1 class="site-logo">Hexa Flix</h1>
+        <form id="searchForm">
+            <input type="text" id="searchInput" placeholder="Search...">
+        </form>
+    </header>
 
-  <script src="js/main.js"></script>
+    <div class="container" id="moviesContainer">
+        <h2>Popular Movies</h2>
+        <div class="movie-grid" id="moviesGrid"></div>
+        <div class="pagination">
+            <button id="prevPage">Previous</button>
+            <span id="currentPage">Page 1</span>
+            <button id="nextPage">Next</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
