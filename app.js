@@ -1,102 +1,110 @@
-const apiKey = '8391e2d3dbcc1df8d4716820aee5fdc4'; // Replace with your actual TMDB API key
-const baseUrl = 'https://api.themoviedb.org/3';
-const imageUrl = 'https://image.tmdb.org/t/p/w500';
+const express = require('express');
+const axios = require('axios');
+const cookieParser = require('cookie-parser');
+const path = require('path');
 
-// Function to fetch popular movies
-async function fetchPopularMovies() {
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// TMDb API configurations
+const BASE_URL = 'https://api.themoviedb.org/3';
+const API_KEY = '8391e2d3dbcc1df8d4716820aee5fdc4';  // Replace with your actual TMDb API key
+
+// Middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
+app.set('view engine', 'ejs');
+
+// Helper function to fetch data from TMDb
+const fetchFromTmdb = async (endpoint, params = {}) => {
+    const url = `${BASE_URL}/${endpoint}`;
+    params.api_key = API_KEY;
+    
     try {
-        const response = await fetch(`${baseUrl}/movie/popular?api_key=${apiKey}&language=en-US&page=1`);
-        const data = await response.json();
-        displayMovies(data.results);
+        const response = await axios.get(url, { params });
+        return response.data;
     } catch (error) {
-        console.error('Error fetching popular movies:', error);
+        console.error('Error fetching from TMDb:', error);
+        return {};
     }
-}
+};
 
-// Function to fetch movies by search query
-async function fetchMoviesBySearch(query) {
-    try {
-        const response = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&query=${query}`);
-        const data = await response.json();
-        displayMovies(data.results);
-    } catch (error) {
-        console.error('Error fetching movies by search:', error);
-    }
-}
+// Home route (displays paginated movies)
+app.get('/', async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const response = await fetchFromTmdb('movie/popular', { page });
+    const movies = response.results.slice(0, 10);
+    const total_pages = response.total_pages;
 
-// Function to display movies on the page
-function displayMovies(movies) {
-    const movieContainer = document.getElementById('movieContainer');
-    movieContainer.innerHTML = '';
+    // Get watch history from cookies
+    const search_history = req.cookies.search_history || '';
+    const viewed_movies = [];
 
-    if (movies.length === 0) {
-        movieContainer.innerHTML = '<p>No movies found.</p>';
-        return;
+    if (search_history) {
+        const movie_ids = search_history.split(',');
+        for (const movie_id of movie_ids) {
+            const movie = await fetchFromTmdb(`movie/${movie_id}`);
+            viewed_movies.push(movie);
+        }
     }
 
-    movies.forEach(movie => {
-        const movieElement = document.createElement('div');
-        movieElement.classList.add('movie');
-
-        movieElement.innerHTML = `
-            <img src="${imageUrl}${movie.poster_path}" alt="${movie.title}">
-            <h3>${movie.title}</h3>
-            <p>${movie.release_date}</p>
-            <button onclick="showMovieDetails(${movie.id})">View Details</button>
-            <button onclick="playMovie(${movie.id})">Play</button> <!-- New Play button -->
-        `;
-
-        movieContainer.appendChild(movieElement);
-    });
-}
-
-// Function to play the movie
-function playMovie(movieId) {
-    // Redirect to the player page with movie ID as a query parameter
-    window.location.href = `player.html?id=${movieId}`; // Use query parameter to pass movie ID
-}
-
-// Function to show movie details
-async function showMovieDetails(movieId) {
-    try {
-        const response = await fetch(`${baseUrl}/movie/${movieId}?api_key=${apiKey}&language=en-US`);
-        const movie = await response.json();
-        
-        const detailsContainer = document.getElementById('movieDetails');
-        detailsContainer.innerHTML = `
-            <h2>${movie.title}</h2>
-            <img src="${imageUrl}${movie.backdrop_path}" alt="${movie.title}">
-            <p>${movie.overview}</p>
-            <p><strong>Release Date:</strong> ${movie.release_date}</p>
-            <p><strong>Rating:</strong> ${movie.vote_average}</p>
-            <button onclick="closeDetails()">Close</button>
-        `;
-        detailsContainer.style.display = 'block';
-    } catch (error) {
-        console.error('Error fetching movie details:', error);
-    }
-}
-
-// Function to close movie details
-function closeDetails() {
-    const detailsContainer = document.getElementById('movieDetails');
-    detailsContainer.style.display = 'none';
-}
-
-// Function to handle search form submission
-document.getElementById('searchForm').addEventListener('submit', function (event) {
-    event.preventDefault();
-    const query = document.getElementById('searchInput').value;
-    if (query) {
-        fetchMoviesBySearch(query);
-    }
+    res.render('home', { movies, viewed_movies, page, total_pages });
 });
 
-// Function to play the movie
-function playMovie(movieId) {
-    const moviePlayerUrl = `https://moviesapi.club/movie/${movieId}`;
-    window.location.href = moviePlayerUrl; // Redirect to the player page
-}
+// Movie detail route
+app.get('/movie/:movie_id', async (req, res) => {
+    const movie_id = req.params.movie_id;
+    const movie_details = await fetchFromTmdb(`movie/${movie_id}`);
 
-// Initial fetch of popular movies
-fetchPopularMovies();
+    if (!movie_details) {
+        return res.render('error', { message: 'Movie not found!' });
+    }
+
+    const search_history = req.cookies.search_history || '';
+    let history_list = search_history ? search_history.split(',') : [];
+    
+    if (!history_list.includes(movie_id)) {
+        history_list.push(movie_id);
+        if (history_list.length > 7) {
+            history_list.shift(); // Remove the oldest entry if more than 7
+        }
+    }
+
+    res.cookie('search_history', history_list.join(','), { maxAge: 604800000 }); // 1 week expiration
+    res.render('movie_detail', { movie: movie_details });
+});
+
+// Movie player route
+app.get('/movie/:movie_id/play', async (req, res) => {
+    const movie_id = req.params.movie_id;
+    const movie_details = await fetchFromTmdb(`movie/${movie_id}`);
+    
+    if (!movie_details) {
+        return res.render('error', { message: 'Movie not found!' });
+    }
+
+    const movie_player_url = `https://moviesapi.club/movie/${movie_id}`;
+    res.render('player', { movie: movie_details, movie_player_url });
+});
+
+// Search route with paginated results
+app.get('/search', async (req, res) => {
+    const query = req.query.query || '';
+    const page = parseInt(req.query.page) || 1;
+
+    if (!query) {
+        return res.redirect('/');
+    }
+
+    const search_results = await fetchFromTmdb('search/movie', { query, page });
+    const movies = search_results.results.slice(0, 10);
+    const total_pages = search_results.total_pages;
+
+    res.render('search_results', { movies, query, page, total_pages });
+});
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
