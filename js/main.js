@@ -114,7 +114,7 @@ function loadPlayer(movieId) {
     mainContent.innerHTML = `
         <div class="fullscreen-player-container">
             <div class="fullscreen-player">
-                <iframe id="movie-iframe" src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin"></iframe>
+                <iframe id="movie-iframe" src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen></iframe>
             </div>
         </div>
     `;
@@ -138,14 +138,14 @@ function loadPlayer(movieId) {
             });
             
             // Intercept all clicks
-            iframeWindow.document.body.addEventListener('click', function(e) {
+            iframeWindow.document.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
             }, true);
 
             // Prevent form submissions
-            iframeWindow.document.body.addEventListener('submit', function(e) {
+            iframeWindow.document.addEventListener('submit', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
@@ -153,6 +153,16 @@ function loadPlayer(movieId) {
 
             // Block popups
             iframeWindow.alert = iframeWindow.confirm = iframeWindow.prompt = function() {};
+
+            // Disable window.open
+            iframeWindow.open = function() { return null; };
+
+            // Prevent navigation
+            ['pushState', 'replaceState'].forEach(function(method) {
+                iframeWindow.history[method] = function() {
+                    console.log(`Blocked ${method} attempt`);
+                };
+            });
 
         } catch (error) {
             console.error('Error setting up iframe navigation prevention:', error);
