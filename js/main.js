@@ -1,6 +1,5 @@
 const API_KEY = '8391e2d3dbcc1df8d4716820aee5fdc4';
 const BASE_URL = 'https://api.themoviedb.org/3';
-
 // Helper function to fetch data from TMDb
 async function fetchFromTMDb(endpoint, params = {}) {
     const url = new URL(`${BASE_URL}/${endpoint}`);
@@ -14,7 +13,6 @@ async function fetchFromTMDb(endpoint, params = {}) {
     }
     throw new Error('Failed to fetch data from TMDb');
 }
-
 // Load home page content
 async function loadHomePage() {
     try {
@@ -31,7 +29,6 @@ async function loadHomePage() {
                     <a href="#" class="play-button" onclick="loadMovieDetail(${popularMovies.results[0].id})">Watch Now</a>
                 </div>
             </section>
-
             <!-- Filters -->
             <section class="filters">
                 <div class="filter-container">
@@ -55,7 +52,6 @@ async function loadHomePage() {
                     </form>
                 </div>
             </section>
-
             <!-- Popular Movies Carousel -->
             <section class="movie-carousel">
                 <h2>Popular Movies</h2>
@@ -74,14 +70,12 @@ async function loadHomePage() {
                 </div>
             </section>
         `;
-
         // Set up event listeners
         setupEventListeners();
     } catch (error) {
         console.error('Error loading home page:', error);
     }
 }
-
 // Load movie detail page
 async function loadMovieDetail(movieId) {
     try {
@@ -114,7 +108,6 @@ async function loadMovieDetail(movieId) {
         console.error('Error loading movie detail:', error);
     }
 }
-
 // Load player page
 function loadPlayer(movieId) {
     const mainContent = document.getElementById('main-content');
@@ -125,24 +118,7 @@ function loadPlayer(movieId) {
             </div>
         </div>
     `;
-
-    // Prevent navigation to other sites
-    const iframe = mainContent.querySelector('iframe');
-    iframe.addEventListener('load', () => {
-        try {
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            const links = iframeDoc.getElementsByTagName('a');
-            for (let link of links) {
-                link.addEventListener('click', (event) => {
-                    event.preventDefault();
-                });
-            }
-        } catch (e) {
-            console.error('Unable to access iframe content:', e);
-        }
-    });
 }
-
 // Search functionality
 async function performSearch(query) {
     try {
@@ -171,7 +147,6 @@ async function performSearch(query) {
         console.error('Error performing search:', error);
     }
 }
-
 // Watchlist functionality
 function loadWatchlist() {
     const watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
@@ -197,16 +172,13 @@ function loadWatchlist() {
         </div>
     `;
 }
-
 function isInWatchlist(movieId) {
     const watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
     return watchlist.some(movie => movie.id === movieId);
 }
-
 async function toggleWatchlist(movieId) {
     let watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
     const isAlreadyInWatchlist = watchlist.some(movie => movie.id === movieId);
-
     if (isAlreadyInWatchlist) {
         watchlist = watchlist.filter(movie => movie.id !== movieId);
         localStorage.setItem('watchlist', JSON.stringify(watchlist));
@@ -222,7 +194,6 @@ async function toggleWatchlist(movieId) {
         localStorage.setItem('watchlist', JSON.stringify(watchlist));
         alert('Movie added to watchlist!');
     }
-
     // Refresh the current page
     if (document.querySelector('.watchlist-container')) {
         loadWatchlist();
@@ -230,7 +201,6 @@ async function toggleWatchlist(movieId) {
         loadMovieDetail(movieId);
     }
 }
-
 // Set up event listeners
 function setupEventListeners() {
     const searchForm = document.getElementById('search-form');
@@ -239,21 +209,17 @@ function setupEventListeners() {
         const query = e.target.elements.query.value;
         performSearch(query);
     });
-
     const filterToggle = document.getElementById('filter-toggle');
     const filterForm = document.getElementById('filter-form');
     filterToggle.addEventListener('click', () => {
         filterForm.classList.toggle('active');
         filterToggle.textContent = filterForm.classList.contains('active') ? 'Hide Filters' : 'Show Filters';
     });
-
     // Add more event listeners as needed
 }
-
 // Initialize the application
 function init() {
     loadHomePage();
 }
-
 // Run the initialization when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', init);
