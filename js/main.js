@@ -114,10 +114,36 @@ function loadPlayer(movieId) {
     mainContent.innerHTML = `
         <div class="fullscreen-player-container">
             <div class="fullscreen-player">
-                <iframe src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen></iframe>
+                <iframe src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin"></iframe>
             </div>
         </div>
     `;
+
+    const iframe = mainContent.querySelector('iframe');
+    iframe.addEventListener('load', function() {
+        try {
+            const iframeWindow = iframe.contentWindow;
+            
+            iframeWindow.addEventListener('beforeunload', function(event) {
+                event.preventDefault();
+                event.returnValue = '';
+            });
+            
+            const originalPushState = iframeWindow.history.pushState;
+            iframeWindow.history.pushState = function() {
+                // Do nothing to prevent navigation
+            };
+            
+            const originalReplaceState = iframeWindow.history.replaceState;
+            iframeWindow.history.replaceState = function() {
+                // Do nothing to prevent navigation
+            };
+            
+            iframeWindow.onunload = null;
+        } catch (error) {
+            console.error('Error setting up iframe navigation prevention:', error);
+        }
+    });
 }
 // Search functionality
 async function performSearch(query) {
