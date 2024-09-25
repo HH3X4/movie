@@ -114,7 +114,7 @@ function loadPlayer(movieId) {
     mainContent.innerHTML = `
         <div class="fullscreen-player-container">
             <div class="fullscreen-player">
-                <iframe src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin"></iframe>
+                <iframe src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen></iframe>
             </div>
         </div>
     `;
@@ -124,22 +124,19 @@ function loadPlayer(movieId) {
         try {
             const iframeWindow = iframe.contentWindow;
             
-            iframeWindow.addEventListener('beforeunload', function(event) {
-                event.preventDefault();
-                event.returnValue = '';
-            });
-            
-            const originalPushState = iframeWindow.history.pushState;
-            iframeWindow.history.pushState = function() {
-                // Do nothing to prevent navigation
-            };
-            
-            const originalReplaceState = iframeWindow.history.replaceState;
-            iframeWindow.history.replaceState = function() {
-                // Do nothing to prevent navigation
-            };
-            
-            iframeWindow.onunload = null;
+            // Attempt to override navigation methods
+            if (iframeWindow.location.href.startsWith('https://moviesapi.club')) {
+                iframeWindow.history.pushState = function() {
+                    // Do nothing to prevent navigation
+                };
+                iframeWindow.history.replaceState = function() {
+                    // Do nothing to prevent navigation
+                };
+                iframeWindow.onbeforeunload = function(e) {
+                    e.preventDefault();
+                    return e.returnValue = "Are you sure you want to exit?";
+                };
+            }
         } catch (error) {
             console.error('Error setting up iframe navigation prevention:', error);
         }
