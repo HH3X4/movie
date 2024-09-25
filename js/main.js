@@ -114,7 +114,7 @@ function loadPlayer(movieId) {
     mainContent.innerHTML = `
         <div class="fullscreen-player-container">
             <div class="fullscreen-player">
-                <iframe id="movie-iframe" src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen></iframe>
+                <iframe id="movie-iframe" src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin"></iframe>
             </div>
         </div>
     `;
@@ -127,10 +127,17 @@ function loadPlayer(movieId) {
             
             // Override navigation methods
             iframeWindow.open = function() { return null; };
-            iframeWindow.location.replace = function() { return null; };
-            iframeWindow.location.assign = function() { return null; };
+            iframeWindow.location = new Proxy(iframeWindow.location, {
+                set: function(obj, prop, value) {
+                    if (prop === 'href') {
+                        console.log('Blocked redirect attempt');
+                        return true;
+                    }
+                    return Reflect.set(...arguments);
+                }
+            });
             
-            // Intercept clicks on links
+            // Intercept all clicks
             iframeWindow.document.body.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -143,6 +150,9 @@ function loadPlayer(movieId) {
                 e.stopPropagation();
                 return false;
             }, true);
+
+            // Block popups
+            iframeWindow.alert = iframeWindow.confirm = iframeWindow.prompt = function() {};
 
         } catch (error) {
             console.error('Error setting up iframe navigation prevention:', error);
