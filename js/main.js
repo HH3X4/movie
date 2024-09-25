@@ -114,29 +114,36 @@ function loadPlayer(movieId) {
     mainContent.innerHTML = `
         <div class="fullscreen-player-container">
             <div class="fullscreen-player">
-                <iframe src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen></iframe>
+                <iframe id="movie-iframe" src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen></iframe>
             </div>
         </div>
     `;
 
-    const iframe = mainContent.querySelector('iframe');
+    const iframe = document.getElementById('movie-iframe');
+    
     iframe.addEventListener('load', function() {
         try {
             const iframeWindow = iframe.contentWindow;
             
-            // Attempt to override navigation methods
-            if (iframeWindow.location.href.startsWith('https://moviesapi.club')) {
-                iframeWindow.history.pushState = function() {
-                    // Do nothing to prevent navigation
-                };
-                iframeWindow.history.replaceState = function() {
-                    // Do nothing to prevent navigation
-                };
-                iframeWindow.onbeforeunload = function(e) {
-                    e.preventDefault();
-                    return e.returnValue = "Are you sure you want to exit?";
-                };
-            }
+            // Override navigation methods
+            iframeWindow.open = function() { return null; };
+            iframeWindow.location.replace = function() { return null; };
+            iframeWindow.location.assign = function() { return null; };
+            
+            // Intercept clicks on links
+            iframeWindow.document.body.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }, true);
+
+            // Prevent form submissions
+            iframeWindow.document.body.addEventListener('submit', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }, true);
+
         } catch (error) {
             console.error('Error setting up iframe navigation prevention:', error);
         }
