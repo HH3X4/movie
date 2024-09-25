@@ -121,18 +121,25 @@ function loadPlayer(movieId) {
     mainContent.innerHTML = `
         <div class="fullscreen-player-container">
             <div class="fullscreen-player">
-                <iframe src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin"></iframe>
+                <iframe src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen></iframe>
             </div>
         </div>
     `;
 
-    // Prevent clicks inside the iframe from redirecting
+    // Prevent navigation to other sites
     const iframe = mainContent.querySelector('iframe');
     iframe.addEventListener('load', () => {
-        iframe.contentWindow.addEventListener('click', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-        }, true);
+        try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const links = iframeDoc.getElementsByTagName('a');
+            for (let link of links) {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                });
+            }
+        } catch (e) {
+            console.error('Unable to access iframe content:', e);
+        }
     });
 }
 
