@@ -1,4 +1,3 @@
-const API_KEY = '8391e2d3dbcc1df8d4716820aee5fdc4';
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 function getCookie(name) {
@@ -233,60 +232,42 @@ async function loadMovieDetail(movieId) {
 function loadPlayer(movieId) {
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = `
-        <div class="fullscreen-player-container">
+        <div class="player-container">
             <div class="fullscreen-player">
-                <iframe id="movie-iframe" src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen></iframe>
+                <iframe src="https://vidsrc.xyz/embed/movie?tmdb=${movieId}" allowfullscreen></iframe>
+            </div>
+            <div class="player-controls">
+                <button id="cast-button" class="cast-button">
+                    <i class="fas fa-cast"></i> Cast
+                </button>
+                <button id="fullscreen-button" class="fullscreen-button">
+                    <i class="fas fa-expand"></i> Fullscreen
+                </button>
             </div>
         </div>
     `;
 
-    const iframe = document.getElementById('movie-iframe');
-    
-    iframe.addEventListener('load', function() {
-        try {
-            const iframeWindow = iframe.contentWindow;
-            
-            // Override navigation methods
-            iframeWindow.open = function() { return null; };
-            iframeWindow.location = new Proxy(iframeWindow.location, {
-                set: function(obj, prop, value) {
-                    if (prop === 'href') {
-                        console.log('Blocked redirect attempt');
-                        return true;
-                    }
-                    return Reflect.set(...arguments);
-                }
-            });
-            
-            // Intercept all clicks
-            iframeWindow.document.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-            }, true);
+    const castButton = document.getElementById('cast-button');
+    castButton.addEventListener('click', () => {
+        const session = cast.framework.CastContext.getInstance().getCurrentSession();
+        if (session) {
+            loadMedia(session);
+        } else {
+            cast.framework.CastContext.getInstance().requestSession().then(loadMedia);
+        }
+    });
 
-            // Prevent form submissions
-            iframeWindow.document.addEventListener('submit', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-            }, true);
-
-            // Block popups
-            iframeWindow.alert = iframeWindow.confirm = iframeWindow.prompt = function() {};
-
-            // Disable window.open
-            iframeWindow.open = function() { return null; };
-
-            // Prevent navigation
-            ['pushState', 'replaceState'].forEach(function(method) {
-                iframeWindow.history[method] = function() {
-                    console.log(`Blocked ${method} attempt`);
-                };
-            });
-
-        } catch (error) {
-            console.error('Error setting up iframe navigation prevention:', error);
+    const fullscreenButton = document.getElementById('fullscreen-button');
+    fullscreenButton.addEventListener('click', () => {
+        const playerContainer = document.querySelector('.player-container');
+        if (playerContainer.requestFullscreen) {
+            playerContainer.requestFullscreen();
+        } else if (playerContainer.mozRequestFullScreen) {
+            playerContainer.mozRequestFullScreen();
+        } else if (playerContainer.webkitRequestFullscreen) {
+            playerContainer.webkitRequestFullscreen();
+        } else if (playerContainer.msRequestFullscreen) {
+            playerContainer.msRequestFullscreen();
         }
     });
 }
@@ -449,6 +430,7 @@ function init() {
         showApiKeyForm();
     } else {
         loadHomePage();
+        initializeCastApi();
     }
 }
 // Run the initialization when the DOM is fully loaded
@@ -537,3 +519,43 @@ async function loadMoviesPage() {
 
     await loadMovies(currentPage, currentGenre, currentSort);
 }
+
+const context = cast.framework.CastContext.getInstance();
+context.setOptions({
+    receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+});
+
+function initializeCastApi() {
+    const castButton = document.getElementById('cast-button');
+    castButton.style.display = 'block';
+    castButton.addEventListener('click', () => {
+        const session = context.getCurrentSession();
+        if (session) {
+            loadMedia(session);
+        } else {
+            context.requestSession().then(loadMedia);
+        }
+    });
+}
+
+function loadMedia(session) {
+    const iframe = document.querySelector('.fullscreen-player iframe');
+    if (iframe) {
+        const videoUrl = iframe.src;
+        const mediaInfo = new chrome.cast.media.MediaInfo(videoUrl, 'application/vnd.apple.mpegurl');
+        const request = new chrome.cast.media.LoadRequest(mediaInfo);
+        session.loadMedia(request).then(
+            () => console.log('Cast succeed'),
+            (errorCode) => console.log('Error code: ' + errorCode)
+        );
+    } else {
+        console.log('No video playing');
+    }
+}
+
+window['__onGCastApiAvailable'] = function(isAvailable) {
+    if (isAvailable) {
+        initializeCastApi();
+    }
+};
