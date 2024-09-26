@@ -311,11 +311,18 @@ async function loadMoviePage() {
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = `
         <div class="movie-page">
-            <h1>Movies</h1>
-            <div class="movie-grid" id="movie-grid"></div>
+            <div class="featured-movie">
+                <h2>Featured Movie</h2>
+                <div id="featured-movie-content"></div>
+            </div>
+            <div class="movie-categories">
+                <h2>Popular Movies</h2>
+                <div class="movie-grid" id="movie-grid"></div>
+            </div>
         </div>
     `;
     currentPage = 1;
+    await loadFeaturedMovie();
     await loadMoreMovies();
 
     window.addEventListener('scroll', handleScroll);
@@ -360,5 +367,25 @@ function createMovieCard(movie) {
 function handleScroll() {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500 && !isLoading) {
         loadMoreMovies();
+    }
+}
+
+async function loadFeaturedMovie() {
+    try {
+        const movies = await fetchFromTMDb('movie/popular', { page: 1 });
+        const featuredMovie = movies.results[0];
+        const featuredMovieContent = document.getElementById('featured-movie-content');
+        featuredMovieContent.innerHTML = `
+            <div class="featured-movie-details">
+                <h3>${featuredMovie.title}</h3>
+                <p>${featuredMovie.overview}</p>
+                <button onclick="loadMovieDetail(${featuredMovie.id})">Watch Now</button>
+            </div>
+            <div class="featured-movie-poster">
+                <img src="https://image.tmdb.org/t/p/w500${featuredMovie.poster_path}" alt="${featuredMovie.title}">
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error loading featured movie:', error);
     }
 }
