@@ -114,7 +114,7 @@ function loadPlayer(movieId) {
     mainContent.innerHTML = `
         <div class="fullscreen-player-container">
             <div class="fullscreen-player">
-                <iframe id="movie-iframe" src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin"></iframe>
+                <iframe id="movie-iframe" src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen></iframe>
             </div>
         </div>
     `;
@@ -125,30 +125,16 @@ function loadPlayer(movieId) {
         try {
             const iframeWindow = iframe.contentWindow;
             
-            // Prevent navigation
-            Object.defineProperty(iframeWindow, 'location', {
-                set: function(value) {
-                    if (!value.startsWith('https://moviesapi.club')) {
-                        console.log('Blocked navigation attempt to:', value);
-                        return;
-                    }
-                    // Allow navigation only within moviesapi.club
-                    iframeWindow.location.href = value;
-                },
-                get: function() {
-                    return iframeWindow.location;
-                }
-            });
-            
             // Override navigation methods
-            iframeWindow.open = function(url) {
+            const originalOpen = iframeWindow.open;
+            iframeWindow.open = function(url, target, features) {
                 if (url && !url.startsWith('https://moviesapi.club')) {
                     console.log('Blocked window.open attempt to:', url);
                     return null;
                 }
-                return window.open(url);
+                return originalOpen.call(this, url, target, features);
             };
-            
+
             // Intercept all clicks
             iframeWindow.document.addEventListener('click', function(e) {
                 const target = e.target.closest('a');
@@ -171,44 +157,6 @@ function loadPlayer(movieId) {
                 }
             }, true);
 
-            // Block popups
-            iframeWindow.alert = iframeWindow.confirm = iframeWindow.prompt = function() {};
-
-            // Prevent navigation
-            ['pushState', 'replaceState'].forEach(function(method) {
-                const original = iframeWindow.history[method];
-                iframeWindow.history[method] = function(state, title, url) {
-                    if (url && !url.startsWith('https://moviesapi.club')) {
-                        console.log(`Blocked ${method} attempt to:`, url);
-                        return;
-                    }
-                    return original.apply(this, arguments);
-                };
-            });
-
-            // Prevent creating new elements (often used for inserting ads)
-            const originalCreateElement = iframeWindow.document.createElement;
-            iframeWindow.document.createElement = function(tagName) {
-                if (['iframe', 'script', 'img', 'div'].includes(tagName.toLowerCase())) {
-                    console.log(`Blocked creation of <${tagName}> element`);
-                    return document.createDocumentFragment(); // Return an empty fragment instead of null
-                }
-                return originalCreateElement.apply(this, arguments);
-            };
-
-            // Prevent setting timeouts and intervals
-            iframeWindow.setTimeout = iframeWindow.setInterval = function() {};
-
-            // Block access to top-level window
-            Object.defineProperty(iframeWindow, 'top', {
-                get: function() {
-                    return iframeWindow;
-                }
-            });
-
-            // Disable opening new windows
-            iframeWindow.open = function() { return null; };
-
             // Intercept and block redirects
             const originalAssign = iframeWindow.location.assign;
             iframeWindow.location.assign = function(url) {
@@ -217,6 +165,15 @@ function loadPlayer(movieId) {
                     return;
                 }
                 originalAssign.call(this, url);
+            };
+
+            const originalReplace = iframeWindow.location.replace;
+            iframeWindow.location.replace = function(url) {
+                if (!url.startsWith('https://moviesapi.club')) {
+                    console.log('Blocked redirect to:', url);
+                    return;
+                }
+                originalReplace.call(this, url);
             };
 
             // Block programmatic clicks
