@@ -127,39 +127,62 @@ function loadPlayer(movieId) {
             
             // Prevent navigation
             Object.defineProperty(iframeWindow, 'location', {
-                set: function() {
-                    console.log('Blocked navigation attempt');
+                set: function(value) {
+                    if (!value.startsWith('https://moviesapi.club')) {
+                        console.log('Blocked navigation attempt to:', value);
+                        return;
+                    }
+                    // Allow navigation only within moviesapi.club
+                    iframeWindow.location.href = value;
+                },
+                get: function() {
+                    return iframeWindow.location;
                 }
             });
             
             // Override navigation methods
-            iframeWindow.open = function() { return null; };
-            iframeWindow.close = function() { return null; };
+            iframeWindow.open = function(url) {
+                if (url && !url.startsWith('https://moviesapi.club')) {
+                    console.log('Blocked window.open attempt to:', url);
+                    return null;
+                }
+                return window.open(url);
+            };
             
             // Intercept all clicks
             iframeWindow.document.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
+                const target = e.target.closest('a');
+                if (target && target.href && !target.href.startsWith('https://moviesapi.club')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Blocked click on link:', target.href);
+                    return false;
+                }
             }, true);
 
             // Prevent form submissions
             iframeWindow.document.addEventListener('submit', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
+                const form = e.target;
+                if (form.action && !form.action.startsWith('https://moviesapi.club')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Blocked form submission to:', form.action);
+                    return false;
+                }
             }, true);
 
             // Block popups
             iframeWindow.alert = iframeWindow.confirm = iframeWindow.prompt = function() {};
 
-            // Disable window.open
-            iframeWindow.open = function() { return null; };
-
             // Prevent navigation
             ['pushState', 'replaceState'].forEach(function(method) {
-                iframeWindow.history[method] = function() {
-                    console.log(`Blocked ${method} attempt`);
+                const original = iframeWindow.history[method];
+                iframeWindow.history[method] = function(state, title, url) {
+                    if (url && !url.startsWith('https://moviesapi.club')) {
+                        console.log(`Blocked ${method} attempt to:`, url);
+                        return;
+                    }
+                    return original.apply(this, arguments);
                 };
             });
 
