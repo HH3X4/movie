@@ -487,6 +487,94 @@ main {
   color: var(--text-color);
 }
 
+.adblock-notice {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--background-color);
+}
+
+.adblock-content {
+  max-width: 600px;
+  padding: 3rem;
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.adblock-notice h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary-color);
+}
+
+.adblock-notice p {
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.adblock-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.adblock-install-btn, .adblock-skip-btn {
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.adblock-install-btn {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+}
+
+.adblock-install-btn:hover {
+  background-color: var(--hover-color);
+  transform: translateY(-2px);
+}
+
+.adblock-skip-btn {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.adblock-skip-btn:hover {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+}
+
+.adblock-install-btn i {
+  margin-right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .adblock-content {
+      padding: 2rem;
+  }
+
+  .adblock-notice h2 {
+      font-size: 2rem;
+  }
+
+  .adblock-buttons {
+      flex-direction: column;
+  }
+
+  .adblock-install-btn, .adblock-skip-btn {
+      width: 100%;
+  }
+}
+
 /* Footer */
 footer {
   background-color: var(--secondary-color);
@@ -572,4 +660,4 @@ footer {
     margin-bottom: 1rem;
     text-align: center;
   }
-}
+  }
