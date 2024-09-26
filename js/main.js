@@ -118,12 +118,18 @@ function loadPlayer(movieId) {
         } else {
             mainContent.innerHTML = `
                 <div class="adblock-notice">
-                    <h2>Ad Blocker Recommended</h2>
-                    <p>For the best viewing experience, we recommend using an ad blocker.</p>
-                    <p>We suggest uBlock Origin, a free and efficient ad blocker.</p>
-                    <div class="adblock-buttons">
-                        <a href="https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm" target="_blank" class="adblock-install-btn">Install uBlock Origin for Chrome</a>
-                        <a href="https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/" target="_blank" class="adblock-install-btn">Install uBlock Origin for Firefox</a>
+                    <div class="adblock-content">
+                        <h2>Enhance Your Viewing Experience</h2>
+                        <p>We recommend using an ad blocker for the best streaming experience.</p>
+                        <p>uBlock Origin is a free, efficient, and easy-to-use ad blocker.</p>
+                        <div class="adblock-buttons">
+                            <a href="https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm" target="_blank" class="adblock-install-btn">
+                                <i class="fab fa-chrome"></i> Install for Chrome
+                            </a>
+                            <a href="https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/" target="_blank" class="adblock-install-btn">
+                                <i class="fab fa-firefox"></i> Install for Firefox
+                            </a>
+                        </div>
                         <button onclick="loadMoviePlayer(${movieId})" class="adblock-skip-btn">Continue without Ad Blocker</button>
                     </div>
                 </div>
