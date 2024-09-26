@@ -114,7 +114,7 @@ function loadPlayer(movieId) {
     mainContent.innerHTML = `
         <div class="fullscreen-player-container">
             <div class="fullscreen-player">
-                <iframe id="movie-iframe" src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin"></iframe>
+                <iframe id="movie-iframe" src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen></iframe>
             </div>
         </div>
     `;
@@ -126,91 +126,57 @@ function loadPlayer(movieId) {
             const iframeWindow = iframe.contentWindow;
             const iframeDocument = iframe.contentDocument || iframeWindow.document;
             
+            // Function to handle the play button click
+            function handlePlayButtonClick(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Play button clicked');
+                // Add your custom play logic here
+            }
+
+            // MutationObserver to watch for the play button
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList') {
+                        const playButton = iframeDocument.querySelector('.jw-icon-display');
+                        if (playButton) {
+                            playButton.removeEventListener('click', handlePlayButtonClick);
+                            playButton.addEventListener('click', handlePlayButtonClick);
+                        }
+                    }
+                });
+            });
+
+            observer.observe(iframeDocument.body, {
+                childList: true,
+                subtree: true
+            });
+
             // Prevent navigation
             Object.defineProperty(iframeWindow, 'location', {
                 set: function() {
                     console.log('Blocked navigation attempt');
                 }
             });
-            
-            // Override navigation methods
-            iframeWindow.open = function() { return null; };
-            iframeWindow.close = function() { return null; };
-            
-            // Intercept all clicks
-            iframeDocument.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Blocked click event');
-                return false;
-            }, true);
 
-            // Prevent form submissions
-            iframeDocument.addEventListener('submit', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Blocked form submission');
-                return false;
-            }, true);
+            // Override window.open
+            iframeWindow.open = function() {
+                console.log('Blocked window.open attempt');
+                return null;
+            };
 
             // Block popups
             iframeWindow.alert = iframeWindow.confirm = iframeWindow.prompt = function() {};
 
-            // Disable window.open
-            iframeWindow.open = function() { return null; };
-
-            // Prevent navigation
-            ['pushState', 'replaceState'].forEach(function(method) {
-                iframeWindow.history[method] = function() {
-                    console.log(`Blocked ${method} attempt`);
-                };
-            });
-
-            // Prevent creating new elements (often used for inserting ads)
-            const originalCreateElement = iframeDocument.createElement;
-            iframeDocument.createElement = function(tagName) {
-                if (['iframe', 'script', 'a', 'form'].includes(tagName.toLowerCase())) {
-                    console.log(`Blocked creation of <${tagName}> element`);
-                    return document.createDocumentFragment();
-                }
-                return originalCreateElement.apply(this, arguments);
-            };
-
-            // Prevent setting timeouts and intervals
-            iframeWindow.setTimeout = iframeWindow.setInterval = function() {};
-
-            // Block access to top-level window
-            Object.defineProperty(iframeWindow, 'top', {
-                get: function() {
-                    return iframeWindow;
-                }
-            });
-
-            // Disable opening new windows
-            iframeWindow.open = function() { return null; };
-
-            // Intercept and block all href changes
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'href') {
-                        mutation.target.removeAttribute('href');
-                    }
-                });
-            });
-
-            observer.observe(iframeDocument.body, {
-                attributes: true,
-                subtree: true,
-                attributeFilter: ['href']
-            });
-
-            // Remove all existing links
-            iframeDocument.querySelectorAll('a').forEach(function(a) {
-                a.removeAttribute('href');
-            });
+            // Prevent form submissions
+            iframeDocument.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Blocked form submission');
+                return false;
+            }, true);
 
         } catch (error) {
-            console.error('Error setting up iframe navigation prevention:', error);
+            console.error('Error setting up iframe content handling:', error);
         }
     });
 }
