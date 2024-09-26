@@ -1,3 +1,4 @@
+const API_KEY = '8391e2d3dbcc1df8d4716820aee5fdc4';
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 function getCookie(name) {
@@ -233,20 +234,35 @@ function loadPlayer(movieId) {
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = `
         <div class="player-container">
-            <div class="fullscreen-player">
-                <iframe src="https://vidsrc.xyz/embed/movie?tmdb=${movieId}" allowfullscreen></iframe>
+            <div class="player-wrapper">
+                <div class="fullscreen-player">
+                    <iframe src="https://vidsrc.xyz/embed/movie?tmdb=${movieId}" allowfullscreen></iframe>
+                </div>
+                <div class="player-controls">
+                    <button id="cast-button" class="control-button">
+                        <i class="fas fa-cast"></i> Cast
+                    </button>
+                    <button id="fullscreen-button" class="control-button">
+                        <i class="fas fa-expand"></i> Fullscreen
+                    </button>
+                </div>
             </div>
-            <div class="player-controls">
-                <button id="cast-button" class="cast-button">
-                    <i class="fas fa-cast"></i> Cast
-                </button>
-                <button id="fullscreen-button" class="fullscreen-button">
-                    <i class="fas fa-expand"></i> Fullscreen
-                </button>
+            <div class="movie-info-panel">
+                <h2 id="movie-title">Loading...</h2>
+                <p id="movie-details">Loading...</p>
+                <p id="movie-overview">Loading...</p>
             </div>
         </div>
     `;
 
+    // Add event listeners for cast and fullscreen buttons
+    setupPlayerControls();
+
+    // Fetch and display movie information
+    fetchMovieInfo(movieId);
+}
+
+function setupPlayerControls() {
     const castButton = document.getElementById('cast-button');
     castButton.addEventListener('click', () => {
         const session = cast.framework.CastContext.getInstance().getCurrentSession();
@@ -259,18 +275,30 @@ function loadPlayer(movieId) {
 
     const fullscreenButton = document.getElementById('fullscreen-button');
     fullscreenButton.addEventListener('click', () => {
-        const playerContainer = document.querySelector('.player-container');
-        if (playerContainer.requestFullscreen) {
-            playerContainer.requestFullscreen();
-        } else if (playerContainer.mozRequestFullScreen) {
-            playerContainer.mozRequestFullScreen();
-        } else if (playerContainer.webkitRequestFullscreen) {
-            playerContainer.webkitRequestFullscreen();
-        } else if (playerContainer.msRequestFullscreen) {
-            playerContainer.msRequestFullscreen();
+        const playerWrapper = document.querySelector('.player-wrapper');
+        if (playerWrapper.requestFullscreen) {
+            playerWrapper.requestFullscreen();
+        } else if (playerWrapper.mozRequestFullScreen) {
+            playerWrapper.mozRequestFullScreen();
+        } else if (playerWrapper.webkitRequestFullscreen) {
+            playerWrapper.webkitRequestFullscreen();
+        } else if (playerWrapper.msRequestFullscreen) {
+            playerWrapper.msRequestFullscreen();
         }
     });
 }
+
+async function fetchMovieInfo(movieId) {
+    try {
+        const movie = await fetchFromTMDb(`movie/${movieId}`);
+        document.getElementById('movie-title').textContent = movie.title;
+        document.getElementById('movie-details').textContent = `${movie.release_date.split('-')[0]} | ${movie.runtime} min | ${movie.genres.map(genre => genre.name).join(', ')}`;
+        document.getElementById('movie-overview').textContent = movie.overview;
+    } catch (error) {
+        console.error('Error fetching movie info:', error);
+    }
+}
+
 // Search functionality
 async function performSearch(query) {
     try {
