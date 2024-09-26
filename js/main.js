@@ -114,7 +114,7 @@ function loadPlayer(movieId) {
     mainContent.innerHTML = `
         <div class="fullscreen-player-container">
             <div class="fullscreen-player">
-                <iframe id="movie-iframe" src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen></iframe>
+                <iframe id="movie-iframe" src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin"></iframe>
             </div>
         </div>
     `;
@@ -125,17 +125,16 @@ function loadPlayer(movieId) {
         try {
             const iframeWindow = iframe.contentWindow;
             
-            // Override navigation methods
-            iframeWindow.open = function() { return null; };
-            iframeWindow.location = new Proxy(iframeWindow.location, {
-                set: function(obj, prop, value) {
-                    if (prop === 'href') {
-                        console.log('Blocked redirect attempt');
-                        return true;
-                    }
-                    return Reflect.set(...arguments);
+            // Prevent navigation
+            Object.defineProperty(iframeWindow, 'location', {
+                set: function() {
+                    console.log('Blocked navigation attempt');
                 }
             });
+            
+            // Override navigation methods
+            iframeWindow.open = function() { return null; };
+            iframeWindow.close = function() { return null; };
             
             // Intercept all clicks
             iframeWindow.document.addEventListener('click', function(e) {
@@ -163,6 +162,19 @@ function loadPlayer(movieId) {
                     console.log(`Blocked ${method} attempt`);
                 };
             });
+
+            // Prevent creating new elements (often used for inserting ads)
+            const originalCreateElement = iframeWindow.document.createElement;
+            iframeWindow.document.createElement = function(tagName) {
+                if (['iframe', 'script', 'img', 'div'].includes(tagName.toLowerCase())) {
+                    console.log(`Blocked creation of <${tagName}> element`);
+                    return null;
+                }
+                return originalCreateElement.apply(this, arguments);
+            };
+
+            // Prevent setting timeouts and intervals
+            iframeWindow.setTimeout = iframeWindow.setInterval = function() {};
 
         } catch (error) {
             console.error('Error setting up iframe navigation prevention:', error);
