@@ -21,55 +21,28 @@ async function loadHomePage() {
         
         const mainContent = document.getElementById('main-content');
         mainContent.innerHTML = `
-            <!-- Featured Banner -->
-            <section class="banner" style="background-image: url('https://image.tmdb.org/t/p/original${popularMovies.results[0].backdrop_path}')">
-                <div class="banner-content">
-                    <h1>${popularMovies.results[0].title}</h1>
-                    <p>${popularMovies.results[0].overview}</p>
-                    <a href="#" class="play-button" onclick="loadMovieDetail(${popularMovies.results[0].id})">Watch Now</a>
-                </div>
-            </section>
-            <!-- Filters -->
-            <section class="filters">
-                <div class="filter-container">
-                    <button id="filter-toggle" class="filter-toggle">Filters <i class="fas fa-filter"></i></button>
-                    <form id="filter-form" class="filter-form">
-                        <div class="filter-group">
-                            <label for="genre">Genre:</label>
-                            <select name="genre" id="genre">
-                                <option value="">All Genres</option>
-                                ${genres.genres.map(genre => `<option value="${genre.id}">${genre.name}</option>`).join('')}
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="year">Year:</label>
-                            <select name="year" id="year">
-                                <option value="">All Years</option>
-                                ${Array.from({length: 124}, (_, i) => 2023 - i).map(year => `<option value="${year}">${year}</option>`).join('')}
-                            </select>
-                        </div>
-                        <button type="submit" class="filter-submit">Apply Filters</button>
-                    </form>
-                </div>
-            </section>
-            <!-- Popular Movies Carousel -->
-            <section class="movie-carousel">
-                <h2>Popular Movies</h2>
-                <div class="movie-list">
-                    ${popularMovies.results.map(movie => `
-                        <div class="movie-card">
-                            <a href="#" onclick="loadMovieDetail(${movie.id})">
-                                <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
-                                <div class="movie-info">
-                                    <h3>${movie.title}</h3>
-                                                <p>${movie.release_date}</p>
-                                </div>
-                            </a>
-                        </div>
-                    `).join('')}
-                </div>
-            </section>
+            <div class="home-container">
+                <h1>Welcome to Hexa Flix</h1>
+                <a href="#" onclick="loadMoviePage()" class="browse-movies-btn">Browse All Movies</a>
+                <section class="movie-carousel">
+                    <h2>Popular Movies</h2>
+                    <div class="movie-list">
+                        ${popularMovies.results.map(movie => `
+                            <div class="movie-card">
+                                <a href="#" onclick="loadMovieDetail(${movie.id})">
+                                    <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
+                                    <div class="movie-info">
+                                        <h3>${movie.title}</h3>
+                                        <p>${movie.release_date.split('-')[0]}</p>
+                                    </div>
+                                </a>
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>
+            </div>
         `;
+        
         // Set up event listeners
         setupEventListeners();
     } catch (error) {
@@ -330,3 +303,56 @@ function init() {
 }
 // Run the initialization when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', init);
+
+let currentPage = 1;
+let isLoading = false;
+
+async function loadMoviePage() {
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = '<div class="movie-grid" id="movie-grid"></div>';
+    await loadMoreMovies();
+
+    window.addEventListener('scroll', handleScroll);
+}
+
+async function loadMoreMovies() {
+    if (isLoading) return;
+    isLoading = true;
+
+    try {
+        const movies = await fetchFromTMDb('movie/popular', { page: currentPage });
+        const movieGrid = document.getElementById('movie-grid');
+
+        movies.results.forEach(movie => {
+            const movieCard = createMovieCard(movie);
+            movieGrid.appendChild(movieCard);
+        });
+
+        currentPage++;
+        isLoading = false;
+    } catch (error) {
+        console.error('Error loading movies:', error);
+        isLoading = false;
+    }
+}
+
+function createMovieCard(movie) {
+    const card = document.createElement('div');
+    card.className = 'movie-card';
+    card.innerHTML = `
+        <a href="#" onclick="loadMovieDetail(${movie.id})">
+            <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
+            <div class="movie-info">
+                <h3>${movie.title}</h3>
+                <p>${movie.release_date.split('-')[0]}</p>
+            </div>
+        </a>
+    `;
+    return card;
+}
+
+function handleScroll() {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        loadMoreMovies();
+    }
+}
