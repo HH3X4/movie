@@ -20,17 +20,15 @@
             <nav>
                 <ul class="nav-links">
                     <li><a href="#" onclick="loadHomePage()">Home</a></li>
-                    <li><a href="#" onclick="loadMoviePage()">Movies</a></li>
                     <li><a href="#" onclick="loadWatchlist()">My Watchlist</a></li>
+                    <li><a href="#" onclick="loadWatchedMovies()">Watched Movies</a></li>
+                    <li><a href="#" onclick="loadMoviesPage()">Movies</a></li>
                 </ul>
             </nav>
             <div class="search-container">
                 <form id="search-form">
                     <input type="text" name="query" placeholder="Search movies or series..." required>
-                    <button type="submit" class="search-button">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
+                </form>            
             </div>            
         </div>
     </header>
@@ -38,12 +36,10 @@
     <main id="main-content">
         <!-- Dynamic content will be loaded here -->
     </main>
-    <div id="ad-detector" style="height: 1px; width: 1px; position: absolute; left: -999px; top: -999px; display: block;"></div>
 
     <footer>
         <p>&copy; 2024 Hexa Flix. All rights reserved.</p>
     </footer>
-
     <script src="js/main.js"></script>
 </body>
 </html>
