@@ -124,63 +124,90 @@ function loadPlayer(movieId) {
     iframe.addEventListener('load', function() {
         try {
             const iframeWindow = iframe.contentWindow;
+            const iframeDocument = iframe.contentDocument || iframeWindow.document;
+            
+            // Prevent navigation
+            Object.defineProperty(iframeWindow, 'location', {
+                set: function() {
+                    console.log('Blocked navigation attempt');
+                }
+            });
             
             // Override navigation methods
-            const originalOpen = iframeWindow.open;
-            iframeWindow.open = function(url, target, features) {
-                if (url && !url.startsWith('https://moviesapi.club')) {
-                    console.log('Blocked window.open attempt to:', url);
-                    return null;
-                }
-                return originalOpen.call(this, url, target, features);
-            };
-
+            iframeWindow.open = function() { return null; };
+            iframeWindow.close = function() { return null; };
+            
             // Intercept all clicks
-            iframeWindow.document.addEventListener('click', function(e) {
-                const target = e.target.closest('a');
-                if (target && target.href && !target.href.startsWith('https://moviesapi.club')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Blocked click on link:', target.href);
-                    return false;
-                }
+            iframeDocument.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Blocked click event');
+                return false;
             }, true);
 
             // Prevent form submissions
-            iframeWindow.document.addEventListener('submit', function(e) {
-                const form = e.target;
-                if (form.action && !form.action.startsWith('https://moviesapi.club')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Blocked form submission to:', form.action);
-                    return false;
-                }
+            iframeDocument.addEventListener('submit', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Blocked form submission');
+                return false;
             }, true);
 
-            // Intercept and block redirects
-            const originalAssign = iframeWindow.location.assign;
-            iframeWindow.location.assign = function(url) {
-                if (!url.startsWith('https://moviesapi.club')) {
-                    console.log('Blocked redirect to:', url);
-                    return;
+            // Block popups
+            iframeWindow.alert = iframeWindow.confirm = iframeWindow.prompt = function() {};
+
+            // Disable window.open
+            iframeWindow.open = function() { return null; };
+
+            // Prevent navigation
+            ['pushState', 'replaceState'].forEach(function(method) {
+                iframeWindow.history[method] = function() {
+                    console.log(`Blocked ${method} attempt`);
+                };
+            });
+
+            // Prevent creating new elements (often used for inserting ads)
+            const originalCreateElement = iframeDocument.createElement;
+            iframeDocument.createElement = function(tagName) {
+                if (['iframe', 'script', 'a', 'form'].includes(tagName.toLowerCase())) {
+                    console.log(`Blocked creation of <${tagName}> element`);
+                    return document.createDocumentFragment();
                 }
-                originalAssign.call(this, url);
+                return originalCreateElement.apply(this, arguments);
             };
 
-            const originalReplace = iframeWindow.location.replace;
-            iframeWindow.location.replace = function(url) {
-                if (!url.startsWith('https://moviesapi.club')) {
-                    console.log('Blocked redirect to:', url);
-                    return;
-                }
-                originalReplace.call(this, url);
-            };
+            // Prevent setting timeouts and intervals
+            iframeWindow.setTimeout = iframeWindow.setInterval = function() {};
 
-            // Block programmatic clicks
-            const originalClick = iframeWindow.HTMLElement.prototype.click;
-            iframeWindow.HTMLElement.prototype.click = function() {
-                console.log('Blocked programmatic click');
-            };
+            // Block access to top-level window
+            Object.defineProperty(iframeWindow, 'top', {
+                get: function() {
+                    return iframeWindow;
+                }
+            });
+
+            // Disable opening new windows
+            iframeWindow.open = function() { return null; };
+
+            // Intercept and block all href changes
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'href') {
+                        mutation.target.removeAttribute('href');
+                    }
+                });
+            });
+
+            observer.observe(iframeDocument.body, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['href']
+            });
+
+            // Remove all existing links
+            iframeDocument.querySelectorAll('a').forEach(function(a) {
+                a.removeAttribute('href');
+            });
 
         } catch (error) {
             console.error('Error setting up iframe navigation prevention:', error);
