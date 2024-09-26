@@ -191,13 +191,39 @@ function loadPlayer(movieId) {
             iframeWindow.document.createElement = function(tagName) {
                 if (['iframe', 'script', 'img', 'div'].includes(tagName.toLowerCase())) {
                     console.log(`Blocked creation of <${tagName}> element`);
-                    return null;
+                    return document.createDocumentFragment(); // Return an empty fragment instead of null
                 }
                 return originalCreateElement.apply(this, arguments);
             };
 
             // Prevent setting timeouts and intervals
             iframeWindow.setTimeout = iframeWindow.setInterval = function() {};
+
+            // Block access to top-level window
+            Object.defineProperty(iframeWindow, 'top', {
+                get: function() {
+                    return iframeWindow;
+                }
+            });
+
+            // Disable opening new windows
+            iframeWindow.open = function() { return null; };
+
+            // Intercept and block redirects
+            const originalAssign = iframeWindow.location.assign;
+            iframeWindow.location.assign = function(url) {
+                if (!url.startsWith('https://moviesapi.club')) {
+                    console.log('Blocked redirect to:', url);
+                    return;
+                }
+                originalAssign.call(this, url);
+            };
+
+            // Block programmatic clicks
+            const originalClick = iframeWindow.HTMLElement.prototype.click;
+            iframeWindow.HTMLElement.prototype.click = function() {
+                console.log('Blocked programmatic click');
+            };
 
         } catch (error) {
             console.error('Error setting up iframe navigation prevention:', error);
