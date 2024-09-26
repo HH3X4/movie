@@ -309,7 +309,13 @@ let isLoading = false;
 
 async function loadMoviePage() {
     const mainContent = document.getElementById('main-content');
-    mainContent.innerHTML = '<div class="movie-grid" id="movie-grid"></div>';
+    mainContent.innerHTML = `
+        <div class="movie-page">
+            <h1>Movies</h1>
+            <div class="movie-grid" id="movie-grid"></div>
+        </div>
+    `;
+    currentPage = 1;
     await loadMoreMovies();
 
     window.addEventListener('scroll', handleScroll);
@@ -352,7 +358,7 @@ function createMovieCard(movie) {
 }
 
 function handleScroll() {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500 && !isLoading) {
         loadMoreMovies();
     }
 }
