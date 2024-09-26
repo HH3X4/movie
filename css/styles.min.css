@@ -356,6 +356,22 @@ main {
   margin-bottom: 2.5rem;
 }
 
+.movie-page {
+  padding: 2rem 4%;
+}
+
+.movie-page h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: var(--primary-color);
+}
+
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
 .movie-detail-content a.play-button,
 .watchlist-button {
   display: inline-block;
