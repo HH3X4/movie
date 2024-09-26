@@ -112,34 +112,41 @@ async function loadMovieDetail(movieId) {
 function loadPlayer(movieId) {
     const mainContent = document.getElementById('main-content');
     
-    if (detectAdBlocker()) {
-        loadMoviePlayer(movieId);
-    } else {
-        mainContent.innerHTML = `
-            <div class="adblock-notice">
-                <h2>Ad Blocker Required</h2>
-                <p>To ensure the best viewing experience, please install an ad blocker before watching.</p>
-                <p>We recommend uBlock Origin, a free and efficient ad blocker.</p>
-                <div class="adblock-buttons">
-                    <a href="https://github.com/gorhill/uBlock#installation" target="_blank" class="adblock-install-btn">Install uBlock Origin</a>
-                    <button onclick="checkAdBlockerAndLoad(${movieId})" class="adblock-check-btn">I've installed it</button>
+    checkAdBlocker().then(isAdBlockerActive => {
+        if (isAdBlockerActive) {
+            loadMoviePlayer(movieId);
+        } else {
+            mainContent.innerHTML = `
+                <div class="adblock-notice">
+                    <h2>Ad Blocker Recommended</h2>
+                    <p>For the best viewing experience, we recommend using an ad blocker.</p>
+                    <p>We suggest uBlock Origin, a free and efficient ad blocker.</p>
+                    <div class="adblock-buttons">
+                        <a href="https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm" target="_blank" class="adblock-install-btn">Install uBlock Origin for Chrome</a>
+                        <a href="https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/" target="_blank" class="adblock-install-btn">Install uBlock Origin for Firefox</a>
+                        <button onclick="loadMoviePlayer(${movieId})" class="adblock-skip-btn">Continue without Ad Blocker</button>
+                    </div>
                 </div>
-            </div>
-        `;
-    }
+            `;
+        }
+    });
 }
 
-function detectAdBlocker() {
-    // This is a simple check and might not be 100% reliable
-    return window.getComputedStyle(document.getElementById('ad-detector')).display === 'none';
-}
-
-function checkAdBlockerAndLoad(movieId) {
-    if (detectAdBlocker()) {
-        loadMoviePlayer(movieId);
-    } else {
-        alert('Ad blocker not detected. Please install uBlock Origin and try again.');
-    }
+function checkAdBlocker() {
+    return new Promise(resolve => {
+        const testAd = document.createElement('div');
+        testAd.innerHTML = '&nbsp;';
+        testAd.className = 'adsbox';
+        document.body.appendChild(testAd);
+        window.setTimeout(() => {
+            if (testAd.offsetHeight === 0) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+            testAd.remove();
+        }, 100);
+    });
 }
 
 function loadMoviePlayer(movieId) {
