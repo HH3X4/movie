@@ -368,8 +368,8 @@ main {
 
 .movie-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 3rem;
 }
 
 .movie-detail-content a.play-button,
@@ -399,12 +399,6 @@ main {
 .watchlist-container h1 {
   font-size: 3rem;
   margin-bottom: 3rem;
-}
-
-.movie-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 3rem;
 }
 
 .remove-button {
@@ -573,24 +567,6 @@ main {
   margin-right: 0.5rem;
 }
 
-@media (max-width: 768px) {
-  .adblock-content {
-      padding: 2rem;
-  }
-
-  .adblock-notice h2 {
-      font-size: 2rem;
-  }
-
-  .adblock-buttons {
-      flex-direction: column;
-  }
-
-  .adblock-install-btn, .adblock-skip-btn {
-      width: 100%;
-  }
-}
-
 /* Footer */
 footer {
   background-color: var(--secondary-color);
@@ -649,6 +625,22 @@ footer {
   .watchlist-container h1,
   .search-results h1 {
     font-size: 2.5rem;
+  }
+
+  .adblock-content {
+    padding: 2rem;
+  }
+
+  .adblock-notice h2 {
+    font-size: 2rem;
+  }
+
+  .adblock-buttons {
+    flex-direction: column;
+  }
+
+  .adblock-install-btn, .adblock-skip-btn {
+    width: 100%;
   }
 }
 
