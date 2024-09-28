@@ -7,6 +7,7 @@ function getCookie(name) {
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
+
 function setCookie(name, value, days) {
     const date = new Date();
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -210,18 +211,14 @@ async function loadMovieDetail(movieId) {
                 </div>
                 <div class="movie-detail-content">
                     <h1>${movie.title}</h1>
-                    <p class="movie-meta">${movie.release_date} | ${movie.runtime} min | ${movie.genres.map(genre => genre.name).join(', ')}</p>
+                    <p class="movie-meta">${movie.release_date.split('-')[0]} | ${movie.runtime} min | ${movie.genres.map(genre => genre.name).join(', ')}</p>
                     <div class="movie-rating">
                         <span class="star-icon">★</span>
                         <span class="rating-value">${movie.vote_average.toFixed(1)}</span>
                     </div>
-                    <div class="movie-description">
-                        <p>${movie.overview}</p>
-                    </div>
-                    <a href="#" class="play-button" onclick="loadPlayer(${movie.id})">Watch Now</a>
-                    <button class="watchlist-button" onclick="toggleWatchlist(${movie.id})">
-                        ${isInWatchlist(movie.id) ? 'Remove from Watchlist' : 'Add to Watchlist'}
-                    </button>
+                    <p class="movie-description">${movie.overview}</p>
+                    <button class="play-button" onclick="loadMoviePlayer(${movie.id})">Watch Now</button>
+                    <button class="watchlist-button" onclick="addToWatchlist(${JSON.stringify(movie)})">Add to Watchlist</button>
                 </div>
             </div>
         `;
@@ -315,17 +312,15 @@ function loadWatchlist() {
     mainContent.innerHTML = `
         <div class="watchlist-container">
             <h1>My Watchlist</h1>
-            <div class="movies-grid">
+            <div class="watchlist-grid">
                 ${watchlist.map(movie => `
-                    <div class="movie-card">
-                        <a href="#" onclick="loadMovieDetail(${movie.id})">
-                            <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
-                            <div class="movie-info">
-                                <h3>${movie.title}</h3>
-                                <p>${movie.release_date}</p>
-                            </div>
-                        </a>
-                        <button class="remove-button" onclick="toggleWatchlist(${movie.id})">Remove</button>
+                    <div class="watchlist-card">
+                        <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
+                        <div class="watchlist-card-info">
+                            <h3>${movie.title}</h3>
+                            <p>${movie.release_date.split('-')[0]}</p>
+                        </div>
+                        <button class="remove-button" onclick="removeFromWatchlist(${movie.id})">×</button>
                     </div>
                 `).join('')}
             </div>
@@ -376,21 +371,19 @@ function addToWatched(movie) {
 
 // Load watched movies page
 function loadWatchedMovies() {
-    const watchedMovies = JSON.parse(getCookie('watchedMovies') || '[]');
+    const watchedMovies = JSON.parse(localStorage.getItem('watchedMovies')) || [];
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = `
         <div class="watched-movies-container">
             <h1>Watched Movies</h1>
-            <div class="movies-grid">
+            <div class="watched-movies-grid">
                 ${watchedMovies.map(movie => `
-                    <div class="movie-card">
-                        <a href="#" onclick="loadMovieDetail(${movie.id})">
-                            <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
-                            <div class="movie-info">
-                                <h3>${movie.title}</h3>
-                                <p>${movie.release_date}</p>
-                            </div>
-                        </a>
+                    <div class="watched-movie-card">
+                        <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
+                        <div class="watched-movie-card-info">
+                            <h3>${movie.title}</h3>
+                            <p>${movie.release_date.split('-')[0]}</p>
+                        </div>
                     </div>
                 `).join('')}
             </div>
@@ -530,4 +523,20 @@ async function loadMoviesPage() {
 
     window.addEventListener('scroll', handleScroll);
     await loadMovies(currentPage, currentGenre, currentSort, currentYear);
+}
+
+function loadMoviePlayer(movieId) {
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <div class="movie-player-container">
+            <h1>Now Playing</h1>
+            <div class="movie-player">
+                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div class="movie-player-info">
+                <h2>Movie Title</h2>
+                <p>This is a placeholder for the movie player. In a real application, you would integrate with a video streaming service or use your own video player implementation.</p>
+            </div>
+        </div>
+    `;
 }
