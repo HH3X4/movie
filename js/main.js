@@ -352,6 +352,7 @@ async function toggleWatchlist(movieId) {
         localStorage.setItem('watchlist', JSON.stringify(watchlist));
         alert('Movie added to watchlist!');
     }
+    
     // Refresh the current page
     if (document.querySelector('.watchlist-container')) {
         loadWatchlist();
@@ -362,10 +363,10 @@ async function toggleWatchlist(movieId) {
 
 // Add movie to watched list
 function addToWatched(movie) {
-    let watchedMovies = JSON.parse(getCookie('watchedMovies') || '[]');
+    let watchedMovies = JSON.parse(localStorage.getItem('watchedMovies') || '[]');
     if (!watchedMovies.some(m => m.id === movie.id)) {
         watchedMovies.push(movie);
-        setCookie('watchedMovies', JSON.stringify(watchedMovies), 365);
+        localStorage.setItem('watchedMovies', JSON.stringify(watchedMovies));
     }
 }
 
@@ -384,6 +385,7 @@ function loadWatchedMovies() {
                             <h3>${movie.title}</h3>
                             <p>${movie.release_date.split('-')[0]}</p>
                         </div>
+                        <button class="play-button" onclick="loadMoviePlayer(${movie.id})">Watch Again</button>
                     </div>
                 `).join('')}
             </div>
@@ -531,12 +533,25 @@ function loadMoviePlayer(movieId) {
         <div class="movie-player-container">
             <h1>Now Playing</h1>
             <div class="movie-player">
-                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+                <iframe src="https://moviesapi.club/movie/${movieId}" frameborder="0" allowfullscreen></iframe>
             </div>
             <div class="movie-player-info">
-                <h2>Movie Title</h2>
-                <p>This is a placeholder for the movie player. In a real application, you would integrate with a video streaming service or use your own video player implementation.</p>
+                <h2 id="movie-title"></h2>
+                <p id="movie-meta"></p>
+                <p id="movie-overview"></p>
             </div>
         </div>
     `;
+    fetchMovieInfo(movieId);
+}
+
+async function fetchMovieInfo(movieId) {
+    try {
+        const movie = await fetchFromTMDb(`movie/${movieId}`);
+        document.getElementById('movie-title').textContent = movie.title;
+        document.getElementById('movie-meta').textContent = `${movie.release_date.split('-')[0]} | ${movie.runtime} min | ${movie.genres.map(genre => genre.name).join(', ')}`;
+        document.getElementById('movie-overview').textContent = movie.overview;
+    } catch (error) {
+        console.error('Error fetching movie info:', error);
+    }
 }
