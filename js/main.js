@@ -531,22 +531,3 @@ async function loadMoviesPage() {
     window.addEventListener('scroll', handleScroll);
     await loadMovies(currentPage, currentGenre, currentSort, currentYear);
 }
-
-function initializeCastApi() {
-    const context = cast.framework.CastContext.getInstance();
-    context.setOptions({
-        receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
-        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-    });
-
-    const castButton = document.getElementById('cast-button');
-    castButton.style.display = 'block';
-    castButton.addEventListener('click', () => {
-        const session = context.getCurrentSession();
-        if (session) {
-            loadMedia(session);
-        } else {
-            context.requestSession().then(loadMedia);
-        }
-    });
-}
