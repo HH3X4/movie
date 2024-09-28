@@ -532,21 +532,6 @@ footer {
     text-align: center;
 }
 
-#cast-button {
-    background-color: var(--primary-color);
-    color: var(--text-color);
-    border: none;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#cast-button:hover {
-    background-color: var(--hover-color);
-}
-
 .cast-button,
 .fullscreen-button {
     padding: 10px 15px;
