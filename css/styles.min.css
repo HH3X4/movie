@@ -56,6 +56,7 @@ main {
     right: 0;
     z-index: 1000;
     backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .logo a {
@@ -65,6 +66,7 @@ main {
     text-decoration: none;
     text-transform: uppercase;
     letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .nav-links {
@@ -81,7 +83,7 @@ main {
     text-decoration: none;
     font-weight: 500;
     font-size: 1.1rem;
-    transition: color 0.3s ease;
+    transition: color 0.3s ease, transform 0.3s ease;
     position: relative;
 }
 
@@ -94,6 +96,11 @@ main {
     left: 0;
     background-color: var(--accent-color);
     transition: width 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: var(--accent-color);
+    transform: translateY(-2px);
 }
 
 .nav-links a:hover::after {
@@ -122,6 +129,10 @@ main {
     border-radius: 50px;
     outline: none;
     font-size: 1rem;
+}
+
+.search-container input::placeholder {
+    color: var(--text-secondary-color);
 }
 
 /* Hero Section */
@@ -189,6 +200,7 @@ main {
     padding: 4rem 4%;
     background-color: var(--surface-color);
     margin-bottom: 3rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .movie-carousel h2 {
@@ -197,6 +209,7 @@ main {
     color: var(--accent-color);
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .movie-list {
@@ -279,6 +292,7 @@ main {
     padding: 4rem 4%;
     gap: 4rem;
     background-color: var(--surface-color);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .movie-detail-img {
@@ -299,6 +313,7 @@ main {
     font-size: 3rem;
     margin-bottom: 1rem;
     color: var(--accent-color);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .movie-meta {
@@ -325,14 +340,14 @@ main {
 }
 
 .movie-description {
-    font-size: 1.1rem;
+    font-size: 1rem;
     line-height: 1.6;
     margin-bottom: 2rem;
 }
 
 .play-button, .watchlist-button {
-    padding: 0.8rem 1.5rem;
-    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease;
@@ -364,6 +379,7 @@ main {
     font-size: 2.5rem;
     margin-bottom: 2rem;
     color: var(--accent-color);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .filter-container {
@@ -407,12 +423,13 @@ main {
     border-radius: 4px;
     font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease;
     align-self: flex-end;
 }
 
 .apply-filters-btn:hover {
     background-color: var(--hover-color);
+    transform: translateY(-2px);
 }
 
 .movies-grid {
@@ -433,6 +450,7 @@ footer {
     text-align: center;
     padding: 2rem 0;
     margin-top: 4rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Design */
@@ -505,8 +523,39 @@ footer {
     .movie-meta {
         font-size: 1rem;
     }
+}
 
-    .movie-description {
-        font-size: 1rem;
+@media (max-width: 480px) {
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero-content p {
+        font-size: 0.9rem;
+    }
+
+    .movie-carousel h2 {
+        font-size: 2rem;
+    }
+
+    .movie-card {
+        width: 140px;
+    }
+
+    .movie-card img {
+        height: 210px;
+    }
+
+    .filter-container {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .apply-filters-btn {
+        width: 100%;
+        margin-top: 1rem;
     }
 }
