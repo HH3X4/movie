@@ -394,40 +394,82 @@ main {
 }
   
 /* Player Page */
-.fullscreen-player-container {
-    height: calc(100vh - 80px);
-    display: flex;
-    flex-direction: column;
+.player-container {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 2rem auto;
+  max-width: 1600px;
+  width: 95%;
 }
-  
+
+.player-wrapper {
+  position: relative;
+  padding-top: 56.25%; /* Maintain 16:9 aspect ratio */
+}
+
 .fullscreen-player {
-    flex: 1;
-    background-color: var(--background-color);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
-  
+
 .fullscreen-player iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
+  width: 100%;
+  height: 100%;
+  border: none;
 }
-  
-.movie-description-container {
-    padding: 3rem 4%;
-    background-color: var(--surface-color);
+
+.player-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10;
 }
-  
-.movie-description-container h2 {
-    font-size: 2.5rem;
-    margin-bottom: 1.5rem;
-    color: var(--primary-color);
+
+.control-button {
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
 }
-  
-.movie-description-container p {
-    font-size: 1.2rem;
-    line-height: 1.8;
-    color: var(--text-color);
+
+.control-button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
 }
-  
+
+.movie-info-panel {
+  padding: 2rem;
+}
+
+.movie-info-panel h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.movie-info-panel p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+#movie-details {
+  font-size: 0.9rem;
+  color: var(--text-secondary-color);
+}
+
+#movie-overview {
+  font-size: 1rem;
+}
+
 /* Footer */
 footer {
     background-color: var(--secondary-color);
@@ -505,54 +547,7 @@ footer {
     background-color: var(--hover-color);
 }
 
-.player-container {
-    position: relative;
-    width: 100%;
-    height: calc(100vh - 80px);
-    background-color: var(--background-color);
-}
-
-.player-controls {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    display: flex;
-    gap: 10px;
-}
-
 .cast-button,
 .fullscreen-button {
     padding: 10px 15px;
-}
-
-/* Player Page Styles */
-.player-container {
-  display: flex;
-  flex-direction: column;
-  background-color: var(--surface-color);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 2rem auto;
-  max-width: 1600px; /* Increased from 1200px */
-  width: 95%; /* Added to ensure some margin on very large screens */
-}
-
-.player-wrapper {
-  position: relative;
-  padding-top: 56.25%; /* Maintain 16:9 aspect ratio */
-}
-
-.fullscreen-player {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.fullscreen-player iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
 }
