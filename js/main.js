@@ -229,22 +229,16 @@ async function loadMovieDetail(movieId) {
         console.error('Error loading movie detail:', error);
     }
 }
+
 // Load player page
 function loadPlayer(movieId) {
     const mainContent = document.getElementById('main-content');
+    const videoUrl = `https://moviesapi.club/movie/${movieId}`;
     mainContent.innerHTML = `
         <div class="player-container">
             <div class="player-wrapper">
                 <div class="fullscreen-player">
-                    <iframe src="https://vidsrc.xyz/embed/movie?tmdb=${movieId}" allowfullscreen></iframe>
-                </div>
-                <div class="player-controls">
-                    <button id="cast-button" class="control-button">
-                        <i class="fas fa-cast"></i> Cast
-                    </button>
-                    <button id="fullscreen-button" class="control-button">
-                        <i class="fas fa-expand"></i> Fullscreen
-                    </button>
+                    <iframe src="${videoUrl}" allowfullscreen></iframe>
                 </div>
             </div>
             <div class="movie-info-panel">
@@ -254,25 +248,11 @@ function loadPlayer(movieId) {
             </div>
         </div>
     `;
-
-    // Add event listeners for cast and fullscreen buttons
     setupPlayerControls();
-
-    // Fetch and display movie information
     fetchMovieInfo(movieId);
 }
 
 function setupPlayerControls() {
-    const castButton = document.getElementById('cast-button');
-    castButton.addEventListener('click', () => {
-        const session = cast.framework.CastContext.getInstance().getCurrentSession();
-        if (session) {
-            loadMedia(session);
-        } else {
-            cast.framework.CastContext.getInstance().requestSession().then(loadMedia);
-        }
-    });
-
     const fullscreenButton = document.getElementById('fullscreen-button');
     fullscreenButton.addEventListener('click', () => {
         const playerWrapper = document.querySelector('.player-wrapper');
@@ -327,10 +307,10 @@ async function performSearch(query) {
         console.error('Error performing search:', error);
     }
 }
+
 // Watchlist functionality
 function loadWatchlist() {
     const watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
-    
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = `
         <div class="watchlist-container">
@@ -352,13 +332,16 @@ function loadWatchlist() {
         </div>
     `;
 }
+
 function isInWatchlist(movieId) {
     const watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
     return watchlist.some(movie => movie.id === movieId);
 }
+
 async function toggleWatchlist(movieId) {
     let watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
     const isAlreadyInWatchlist = watchlist.some(movie => movie.id === movieId);
+    
     if (isAlreadyInWatchlist) {
         watchlist = watchlist.filter(movie => movie.id !== movieId);
         localStorage.setItem('watchlist', JSON.stringify(watchlist));
@@ -380,20 +363,6 @@ async function toggleWatchlist(movieId) {
     } else {
         loadMovieDetail(movieId);
     }
-}
-// Helper function to get cookies
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
-
-// Helper function to set cookies
-function setCookie(name, value, days) {
-    const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    const expires = `expires=${date.toUTCString()}`;
-    document.cookie = `${name}=${value}; ${expires}; path=/`;
 }
 
 // Add movie to watched list
@@ -431,12 +400,12 @@ function loadWatchedMovies() {
 
 // Set up event listeners
 function setupEventListeners() {
-    const searchForm = document.getElementById('search-form');
+    const searchForm = document.querySelector('#search-form');
     if (searchForm) {
         searchForm.addEventListener('submit', event => {
             event.preventDefault();
             const query = event.target.query.value;
-            loadSearchResults(query);
+            performSearch(query);
         });
     }
 
@@ -448,9 +417,9 @@ function setupEventListeners() {
             loadMovieDetail(movieId);
         });
     });
-
     // Add more event listeners as needed
 }
+
 // Initialize the application
 function init() {
     const apiKey = getApiKey();
@@ -458,9 +427,9 @@ function init() {
         showApiKeyForm();
     } else {
         loadHomePage();
-        initializeCastApi();
     }
 }
+
 // Run the initialization when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', init);
 
@@ -468,21 +437,34 @@ async function loadMoviesPage() {
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = `
         <div class="movies-page-container">
-            <h1>All Movies</h1>
+            <h1>Explore Movies</h1>
             <div class="filter-container">
-                <select id="genre-filter">
-                    <option value="">All Genres</option>
-                    <option value="28">Action</option>
-                    <option value="35">Comedy</option>
-                    <option value="18">Drama</option>
-                    <option value="27">Horror</option>
-                    <!-- Add more genres as needed -->
-                </select>
-                <select id="sort-filter">
-                    <option value="popularity.desc">Most Popular</option>
-                    <option value="release_date.desc">Newest</option>
-                    <option value="vote_average.desc">Top Rated</option>
-                </select>
+                <div class="filter-group">
+                    <label for="genre-filter">Genre:</label>
+                    <select id="genre-filter">
+                        <option value="">All Genres</option>
+                        <option value="28">Action</option>
+                        <option value="35">Comedy</option>
+                        <option value="18">Drama</option>
+                        <option value="27">Horror</option>
+                        <option value="10749">Romance</option>
+                        <option value="878">Science Fiction</option>
+                        <option value="53">Thriller</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sort-filter">Sort by:</label>
+                    <select id="sort-filter">
+                        <option value="popularity.desc">Most Popular</option>
+                        <option value="release_date.desc">Newest</option>
+                        <option value="vote_average.desc">Top Rated</option>
+                        <option value="revenue.desc">Highest Grossing</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="year-filter">Year:</label>
+                    <input type="number" id="year-filter" min="1900" max="2099" step="1" placeholder="Enter year">
+                </div>
             </div>
             <div class="movies-grid" id="movies-grid"></div>
             <div class="loading-spinner" id="loading-spinner"></div>
@@ -492,13 +474,17 @@ async function loadMoviesPage() {
     let currentPage = 1;
     let currentGenre = '';
     let currentSort = 'popularity.desc';
+    let currentYear = '';
     let isLoading = false;
 
-    async function loadMovies(page, genre, sort) {
+    async function loadMovies(page, genre, sort, year) {
         isLoading = true;
-        const params = { page, sort_by: sort };
+        const params = { page: page, sort_by: sort };
         if (genre) {
             params.with_genres = genre;
+        }
+        if (year) {
+            params.primary_release_year = year;
         }
         const movies = await fetchFromTMDb('discover/movie', params);
         const moviesGrid = document.getElementById('movies-grid');
@@ -510,7 +496,7 @@ async function loadMoviesPage() {
                     <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
                     <div class="movie-info">
                         <h3>${movie.title}</h3>
-                        <p>${movie.release_date}</p>
+                        <p>${movie.release_date.split('-')[0]}</p>
                     </div>
                 </a>
             `;
@@ -524,37 +510,35 @@ async function loadMoviesPage() {
         if (scrollTop + clientHeight >= scrollHeight - 200 && !isLoading) {
             currentPage++;
             document.getElementById('loading-spinner').style.display = 'block';
-            await loadMovies(currentPage, currentGenre, currentSort);
+            await loadMovies(currentPage, currentGenre, currentSort, currentYear);
             document.getElementById('loading-spinner').style.display = 'none';
         }
     }
 
-    document.getElementById('genre-filter').addEventListener('change', async (event) => {
-        currentGenre = event.target.value;
+    function applyFilters() {
+        currentGenre = document.getElementById('genre-filter').value;
+        currentSort = document.getElementById('sort-filter').value;
+        currentYear = document.getElementById('year-filter').value;
         currentPage = 1;
         document.getElementById('movies-grid').innerHTML = '';
-        await loadMovies(currentPage, currentGenre, currentSort);
-    });
+        loadMovies(currentPage, currentGenre, currentSort, currentYear);
+    }
 
-    document.getElementById('sort-filter').addEventListener('change', async (event) => {
-        currentSort = event.target.value;
-        currentPage = 1;
-        document.getElementById('movies-grid').innerHTML = '';
-        await loadMovies(currentPage, currentGenre, currentSort);
-    });
+    document.getElementById('genre-filter').addEventListener('change', applyFilters);
+    document.getElementById('sort-filter').addEventListener('change', applyFilters);
+    document.getElementById('year-filter').addEventListener('change', applyFilters);
 
     window.addEventListener('scroll', handleScroll);
-
-    await loadMovies(currentPage, currentGenre, currentSort);
+    await loadMovies(currentPage, currentGenre, currentSort, currentYear);
 }
 
-const context = cast.framework.CastContext.getInstance();
-context.setOptions({
-    receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
-    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-});
-
 function initializeCastApi() {
+    const context = cast.framework.CastContext.getInstance();
+    context.setOptions({
+        receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+    });
+
     const castButton = document.getElementById('cast-button');
     castButton.style.display = 'block';
     castButton.addEventListener('click', () => {
@@ -566,24 +550,3 @@ function initializeCastApi() {
         }
     });
 }
-
-function loadMedia(session) {
-    const iframe = document.querySelector('.fullscreen-player iframe');
-    if (iframe) {
-        const videoUrl = iframe.src;
-        const mediaInfo = new chrome.cast.media.MediaInfo(videoUrl, 'application/vnd.apple.mpegurl');
-        const request = new chrome.cast.media.LoadRequest(mediaInfo);
-        session.loadMedia(request).then(
-            () => console.log('Cast succeed'),
-            (errorCode) => console.log('Error code: ' + errorCode)
-        );
-    } else {
-        console.log('No video playing');
-    }
-}
-
-window['__onGCastApiAvailable'] = function(isAvailable) {
-    if (isAvailable) {
-        initializeCastApi();
-    }
-};
