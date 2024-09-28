@@ -1,11 +1,11 @@
 :root {
-    --primary-color: #e50914;
+    --primary-color: #00b7ff;
     --secondary-color: #0f0f0f;
     --background-color: #141414;
     --surface-color: #1f1f1f;
     --text-color: #ffffff;
     --text-secondary-color: #b3b3b3;
-    --hover-color: #ff3e3e;
+    --hover-color: #33c5ff;
     --accent-color: #00b7ff;
     --gradient-overlay: linear-gradient(to bottom, rgba(20,20,20,0.8) 0%, rgba(20,20,20,0.5) 60%, rgba(20,20,20,0.8) 100%);
 }
@@ -196,7 +196,7 @@ main {
 .hero-content .play-button:hover {
     background-color: var(--hover-color);
     transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 183, 255, 0.4);
 }
 
 /* Movie Sections */
@@ -376,7 +376,7 @@ main {
 
 .play-button:hover, .watchlist-button:hover {
     transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 183, 255, 0.2);
 }
 
 .play-button:hover {
@@ -384,7 +384,7 @@ main {
 }
 
 .watchlist-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 183, 255, 0.1);
 }
 
 /* Movies Page */
