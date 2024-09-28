@@ -440,7 +440,7 @@ async function loadMoviesPage() {
             <h1>Explore Movies</h1>
             <div class="filter-container">
                 <div class="filter-group">
-                    <label for="genre-filter">Genre:</label>
+                    <label for="genre-filter">Genre</label>
                     <select id="genre-filter">
                         <option value="">All Genres</option>
                         <option value="28">Action</option>
@@ -453,7 +453,7 @@ async function loadMoviesPage() {
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label for="sort-filter">Sort by:</label>
+                    <label for="sort-filter">Sort by</label>
                     <select id="sort-filter">
                         <option value="popularity.desc">Most Popular</option>
                         <option value="release_date.desc">Newest</option>
@@ -462,9 +462,10 @@ async function loadMoviesPage() {
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label for="year-filter">Year:</label>
+                    <label for="year-filter">Year</label>
                     <input type="number" id="year-filter" min="1900" max="2099" step="1" placeholder="Enter year">
                 </div>
+                <button id="apply-filters" class="apply-filters-btn">Apply Filters</button>
             </div>
             <div class="movies-grid" id="movies-grid"></div>
             <div class="loading-spinner" id="loading-spinner"></div>
@@ -521,12 +522,11 @@ async function loadMoviesPage() {
         currentYear = document.getElementById('year-filter').value;
         currentPage = 1;
         document.getElementById('movies-grid').innerHTML = '';
+        document.getElementById('loading-spinner').style.display = 'block';
         loadMovies(currentPage, currentGenre, currentSort, currentYear);
     }
 
-    document.getElementById('genre-filter').addEventListener('change', applyFilters);
-    document.getElementById('sort-filter').addEventListener('change', applyFilters);
-    document.getElementById('year-filter').addEventListener('change', applyFilters);
+    document.getElementById('apply-filters').addEventListener('click', applyFilters);
 
     window.addEventListener('scroll', handleScroll);
     await loadMovies(currentPage, currentGenre, currentSort, currentYear);
