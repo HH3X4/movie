@@ -242,9 +242,9 @@ function loadPlayer(movieId) {
                 </div>
             </div>
             <div class="movie-info-panel">
-                <h2 id="movie-title">Loading...</h2>
-                <p id="movie-details">Loading...</p>
-                <p id="movie-overview">Loading...</p>
+                <h2 id="movie-title"></h2>
+                <p id="movie-details"></p>
+                <p id="movie-overview"></p>
             </div>
         </div>
     `;
