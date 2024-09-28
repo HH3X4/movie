@@ -352,7 +352,6 @@ async function toggleWatchlist(movieId) {
         localStorage.setItem('watchlist', JSON.stringify(watchlist));
         alert('Movie added to watchlist!');
     }
-    
     // Refresh the current page
     if (document.querySelector('.watchlist-container')) {
         loadWatchlist();
@@ -363,10 +362,10 @@ async function toggleWatchlist(movieId) {
 
 // Add movie to watched list
 function addToWatched(movie) {
-    let watchedMovies = JSON.parse(localStorage.getItem('watchedMovies') || '[]');
+    let watchedMovies = JSON.parse(getCookie('watchedMovies') || '[]');
     if (!watchedMovies.some(m => m.id === movie.id)) {
         watchedMovies.push(movie);
-        localStorage.setItem('watchedMovies', JSON.stringify(watchedMovies));
+        setCookie('watchedMovies', JSON.stringify(watchedMovies), 365);
     }
 }
 
@@ -385,7 +384,6 @@ function loadWatchedMovies() {
                             <h3>${movie.title}</h3>
                             <p>${movie.release_date.split('-')[0]}</p>
                         </div>
-                        <button class="play-button" onclick="loadMoviePlayer(${movie.id})">Watch Again</button>
                     </div>
                 `).join('')}
             </div>
