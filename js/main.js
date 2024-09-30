@@ -1,4 +1,3 @@
-const API_KEY = '8391e2d3dbcc1df8d4716820aee5fdc4';
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 function getCookie(name) {
@@ -13,40 +12,6 @@ function setCookie(name, value, days) {
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
     const expires = `expires=${date.toUTCString()}`;
     document.cookie = `${name}=${value}; ${expires}; path=/`;
-}
-
-async function validateApiKey(apiKey) {
-    const url = new URL(`${BASE_URL}/movie/popular`);
-    url.searchParams.append('api_key', apiKey);
-    const response = await fetch(url);
-    return response.ok;
-}
-
-function showApiKeyForm() {
-    const mainContent = document.getElementById('main-content');
-    mainContent.innerHTML = `
-        <div class="api-key-form-container">
-            <h1>Enter Your TMDb API Key</h1>
-            <p>You can get your API key from <a href="https://www.themoviedb.org/settings/api" target="_blank">TMDb API Settings</a>.</p>
-            <form id="api-key-form">
-                <input type="text" id="api-key-input" placeholder="Enter your TMDb API key" required>
-                <button type="submit">Save API Key</button>
-            </form>
-            <p id="api-key-error" class="error-message"></p>
-        </div>
-    `;
-
-    document.getElementById('api-key-form').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const apiKey = document.getElementById('api-key-input').value;
-        const isValid = await validateApiKey(apiKey);
-        if (isValid) {
-            setCookie('tmdb_api_key', apiKey, 365);
-            init();
-        } else {
-            document.getElementById('api-key-error').textContent = 'Invalid API key. Please try again.';
-        }
-    });
 }
 
 function getApiKey() {
@@ -72,6 +37,7 @@ async function fetchFromTMDb(endpoint, params = {}) {
 }
 
 async function loadHomePage() {
+    if (!checkLoggedIn()) return;
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = '<div class="loading-spinner"></div>'; // Show loading spinner
 
@@ -192,6 +158,7 @@ async function loadHomePage() {
 
 // Load movie detail page
 async function loadMovieDetail(movieId) {
+    if (!checkLoggedIn()) return;
     try {
         const movie = await fetchFromTMDb(`movie/${movieId}`);
         
@@ -245,24 +212,6 @@ function loadPlayer(movieId) {
             </div>
         </div>
     `;
-    setupPlayerControls();
-    fetchMovieInfo(movieId);
-}
-
-function setupPlayerControls() {
-    const fullscreenButton = document.getElementById('fullscreen-button');
-    fullscreenButton.addEventListener('click', () => {
-        const playerWrapper = document.querySelector('.player-wrapper');
-        if (playerWrapper.requestFullscreen) {
-            playerWrapper.requestFullscreen();
-        } else if (playerWrapper.mozRequestFullScreen) {
-            playerWrapper.mozRequestFullScreen();
-        } else if (playerWrapper.webkitRequestFullscreen) {
-            playerWrapper.webkitRequestFullscreen();
-        } else if (playerWrapper.msRequestFullscreen) {
-            playerWrapper.msRequestFullscreen();
-        }
-    });
 }
 
 async function fetchMovieInfo(movieId) {
@@ -307,6 +256,7 @@ async function performSearch(query) {
 
 // Watchlist functionality
 function loadWatchlist() {
+    if (!checkLoggedIn()) return;
     const username = getCookie('username');
     const watchlist = JSON.parse(localStorage.getItem(`watchlist_${username}`)) || [];
     const mainContent = document.getElementById('main-content');
@@ -375,6 +325,7 @@ function addToWatched(movie) {
 
 // Load watched movies page
 function loadWatchedMovies() {
+    if (!checkLoggedIn()) return;
     const username = getCookie('username');
     const watchedMovies = JSON.parse(localStorage.getItem(`watchedMovies_${username}`)) || [];
     const mainContent = document.getElementById('main-content');
@@ -421,7 +372,8 @@ function setupEventListeners() {
 // Initialize the application
 function init() {
     const username = getCookie('username');
-    if (!username) {
+    const apiKey = getCookie('tmdb_api_key');
+    if (!username || !apiKey) {
         showLoginForm();
     } else {
         loadHomePage();
@@ -432,6 +384,7 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 
 async function loadMoviesPage() {
+    if (!checkLoggedIn()) return;
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = `
         <div class="movies-page-container">
@@ -529,6 +482,7 @@ async function loadMoviesPage() {
     window.addEventListener('scroll', handleScroll);
     await loadMovies(currentPage, currentGenre, currentSort, currentYear);
 }
+
 
 function loadMoviePlayer(movieId) {
     const mainContent = document.getElementById('main-content');
@@ -633,5 +587,17 @@ function logout() {
     setCookie('username', '', -1);
     setCookie('tmdb_api_key', '', -1);
     localStorage.removeItem('user');
+    localStorage.removeItem(`watchlist_${getCookie('username')}`);
+    localStorage.removeItem(`watchedMovies_${getCookie('username')}`);
     showLoginForm();
+}
+
+function checkLoggedIn() {
+    const username = getCookie('username');
+    const apiKey = getCookie('tmdb_api_key');
+    if (!username || !apiKey) {
+        showLoginForm();
+        return false;
+    }
+    return true;
 }
