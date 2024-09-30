@@ -1,37 +1,63 @@
 # Hexa Flix
 
-Welcome to Hexa Flix, your go-to platform for streaming movies and series. This project allows users to browse popular, newest, action, and comedy movies using their own TMDb API key.
+Hexa Flix is a modern, responsive web application for streaming movies and TV series. It provides users with a Netflix-like experience, allowing them to browse, search, and watch their favorite content.
 
 ## Features
 
-- **Home Page**: Displays popular, newest, action, and comedy movies.
-- **Watchlist**: Users can add or remove movies from their watchlist.
-- **Watched Movies**: Users can view a list of movies they have watched.
-- **Movies Page**: Users can filter movies by genre and sort by popularity, release date, or rating. Infinite scrolling is implemented to load more movies as the user scrolls down.
-- **Custom TMDb API Key**: Users can input their own TMDb API key, which is saved in cookies for future use.
+- User authentication (login and registration)
+- Browse popular, newest, action, and comedy movies
+- Search functionality for finding specific movies
+- Detailed movie information pages
+- Add movies to a personal watchlist
+- Keep track of watched movies
+- Responsive design for various screen sizes
+- Integration with The Movie Database (TMDb) API
 
-## Live Demo
+## Technologies Used
 
-Check out the live demo of Hexa Flix [here](https://hh3x4.github.io/Hexa-Flix/).
+- HTML5
+- CSS3
+- JavaScript (ES6+)
+- The Movie Database (TMDb) API
 
 ## Getting Started
 
-### Prerequisites
-
-- A TMDb API key. You can get your API key from [TMDb API Settings](https://www.themoviedb.org/settings/api).
-
-### Installation
-
 1. Clone the repository:
-    ```bash
-    git clone https://github.com/hh3x4/Hexa-Flix.git
-    cd Hexa-Flix
-    ```
+   ```
+   git clone https://github.com/yourusername/hexa-flix.git
+   ```
 
-2. Open `index.html` in your browser to start the application.
+2. Open the `index.html` file in your web browser.
 
-## Usage
+3. Register for an account using a valid TMDb API key. You can obtain an API key by signing up at [https://www.themoviedb.org/settings/api](https://www.themoviedb.org/settings/api).
 
-### Entering Your TMDb API Key
+## Project Structure
 
-When you first visit the site, you will be prompted to enter your TMDb API key. This key will be saved in cookies, so you don't need to enter it again.
+- `index.html`: Main HTML file
+- `css/styles.min.css`: Minified CSS file for styling
+- `js/main.js`: Main JavaScript file containing all the application logic
+
+## Key Functions
+
+- `loadHomePage()`: Loads the main page with movie carousels
+- `loadMovieDetail()`: Displays detailed information about a selected movie
+- `loadMoviePlayer()`: Loads the movie player for watching content
+- `performSearch()`: Handles movie search functionality
+- `loadWatchlist()`: Displays the user's watchlist
+- `loadWatchedMovies()`: Shows the list of movies the user has watched
+
+## Authentication
+
+The project uses a simple client-side authentication system for demonstration purposes. In a production environment, you should implement server-side authentication for better security.
+
+## API Integration
+
+The application integrates with The Movie Database (TMDb) API. Make sure to use your own API key when registering for an account within the app.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
