@@ -1,18 +1,18 @@
 :root {
-    --primary-color: #6c5ce7;
-    --secondary-color: #2d3436;
-    --background-color: #1e272e;
-    --surface-color: #2d3436;
-    --text-color: #dfe6e9;
-    --text-secondary-color: #b2bec3;
-    --accent-color: #00b894;
-    --hover-color: #81ecec;
-    --card-background: #2d3436;
-    --card-hover-background: #34495e;
-    --button-color: #6c5ce7;
-    --button-hover-color: #5f27cd;
-    --input-background: #34495e;
-    --input-text-color: #dfe6e9;
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --background-color: #1a1a2e;
+    --surface-color: #16213e;
+    --text-color: #e0e0e0;
+    --text-secondary-color: #a0a0a0;
+    --accent-color: #2980b9;
+    --hover-color: #2980b9;
+    --card-background: #1f2937;
+    --card-hover-background: #2d3748;
+    --button-color: #3498db;
+    --button-hover-color: #2980b9;
+    --input-background: #2c3e50;
+    --input-text-color: #e0e0e0;
 }
 
 * {
@@ -27,7 +27,7 @@ body {
     color: var(--text-color);
     line-height: 1.6;
 }
-
+  
 a {
     color: var(--text-color);
     text-decoration: none;
@@ -818,7 +818,6 @@ footer {
 
 .movie-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(229, 9, 20, 0.3);
 }
 
 .movie-card img {
