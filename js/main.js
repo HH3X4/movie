@@ -534,7 +534,6 @@ async function handleRegistration(event) {
     const password = document.getElementById('password').value;
     const apiKey = document.getElementById('api-key').value;
 
-    // Validate API key
     try {
         const isValid = await validateApiKey(apiKey);
         if (!isValid) {
@@ -547,13 +546,14 @@ async function handleRegistration(event) {
         return;
     }
 
-    // Store user data in localStorage
     const users = JSON.parse(localStorage.getItem('users') || '{}');
     if (users[username]) {
         alert('Username already exists. Please choose a different one.');
         return;
     }
-    users[username] = { password, apiKey };
+    
+    const hashedPassword = await hashPassword(password);
+    users[username] = { password: hashedPassword, apiKey };
     localStorage.setItem('users', JSON.stringify(users));
 
     alert('Registration successful!');
@@ -577,14 +577,14 @@ function showLoginForm() {
     document.getElementById('login-form').addEventListener('submit', handleLogin);
 }
 
-function handleLogin(event) {
+async function handleLogin(event) {
     event.preventDefault();
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
     const users = JSON.parse(localStorage.getItem('users') || '{}');
     const user = users[username];
-    if (user && user.password === password) {
+    if (user && await verifyPassword(password, user.password)) {
         loginUser(username, user.apiKey);
     } else {
         alert('Invalid username or password');
@@ -594,19 +594,22 @@ function handleLogin(event) {
 function loginUser(username, apiKey) {
     setCookie('username', username, 365);
     setCookie('tmdb_api_key', apiKey, 365);
+    localStorage.setItem('currentUser', username);
     loadHomePage();
 }
 
 function logout() {
     setCookie('username', '', -1);
     setCookie('tmdb_api_key', '', -1);
+    localStorage.removeItem('currentUser');
     showLoginForm();
 }
 
 function checkLoggedIn() {
     const username = getCookie('username');
     const apiKey = getCookie('tmdb_api_key');
-    if (!username || !apiKey) {
+    const currentUser = localStorage.getItem('currentUser');
+    if (!username || !apiKey || !currentUser || username !== currentUser) {
         showLoginForm();
         return false;
     }
@@ -621,4 +624,16 @@ async function validateApiKey(apiKey) {
         console.error('Error validating API key:', error);
         return false;
     }
+}
+
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function verifyPassword(inputPassword, storedHash) {
+    const inputHash = await hashPassword(inputPassword);
+    return inputHash === storedHash;
 }
