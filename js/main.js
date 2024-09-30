@@ -265,14 +265,13 @@ function loadWatchlist() {
             <h1>My Watchlist</h1>
             <div class="watchlist-grid">
                 ${watchlist.map(movie => `
-                    <div class="watchlist-card">
+                    <div class="watchlist-card" onclick="loadMovieDetail(${movie.id})">
                         <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
                         <div class="watchlist-card-info">
                             <h3>${movie.title}</h3>
                             <p>${movie.release_date.split('-')[0]}</p>
                         </div>
-                        <button class="remove-button" onclick="removeFromWatchlist(${movie.id})">Remove</button>
-                        <button class="play-button" onclick="loadMoviePlayer(${movie.id})">Watch</button>
+                        <button class="remove-button" onclick="removeFromWatchlist(${movie.id}); event.stopPropagation();">Remove</button>
                     </div>
                 `).join('')}
             </div>
