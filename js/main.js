@@ -271,7 +271,8 @@ function loadWatchlist() {
                             <h3>${movie.title}</h3>
                             <p>${movie.release_date.split('-')[0]}</p>
                         </div>
-                        <button class="remove-button" onclick="removeFromWatchlist(${movie.id})">×</button>
+                        <button class="remove-button" onclick="removeFromWatchlist(${movie.id})">Remove</button>
+                        <button class="play-button" onclick="loadMoviePlayer(${movie.id})">Watch</button>
                     </div>
                 `).join('')}
             </div>
@@ -279,38 +280,24 @@ function loadWatchlist() {
     `;
 }
 
-function isInWatchlist(movieId) {
-    const username = getCookie('username');
-    const watchlist = JSON.parse(localStorage.getItem(`watchlist_${username}`)) || [];
-    return watchlist.some(movie => movie.id === movieId);
-}
-
-async function toggleWatchlist(movieId) {
+function addToWatchlist(movie) {
     const username = getCookie('username');
     let watchlist = JSON.parse(localStorage.getItem(`watchlist_${username}`)) || [];
-    const isAlreadyInWatchlist = watchlist.some(movie => movie.id === movieId);
-    
-    if (isAlreadyInWatchlist) {
-        watchlist = watchlist.filter(movie => movie.id !== movieId);
-        localStorage.setItem(`watchlist_${username}`, JSON.stringify(watchlist));
-        alert('Movie removed from watchlist!');
-    } else {
-        const movie = await fetchFromTMDb(`movie/${movieId}`);
-        watchlist.push({
-            id: movie.id,
-            title: movie.title,
-            poster_path: movie.poster_path,
-            release_date: movie.release_date
-        });
+    if (!watchlist.some(m => m.id === movie.id)) {
+        watchlist.push(movie);
         localStorage.setItem(`watchlist_${username}`, JSON.stringify(watchlist));
         alert('Movie added to watchlist!');
-    }
-    // Refresh the current page
-    if (document.querySelector('.watchlist-container')) {
-        loadWatchlist();
     } else {
-        loadMovieDetail(movieId);
+        alert('Movie is already in your watchlist!');
     }
+}
+
+function removeFromWatchlist(movieId) {
+    const username = getCookie('username');
+    let watchlist = JSON.parse(localStorage.getItem(`watchlist_${username}`)) || [];
+    watchlist = watchlist.filter(movie => movie.id !== movieId);
+    localStorage.setItem(`watchlist_${username}`, JSON.stringify(watchlist));
+    loadWatchlist();
 }
 
 // Add movie to watched list
@@ -340,6 +327,7 @@ function loadWatchedMovies() {
                             <h3>${movie.title}</h3>
                             <p>${movie.release_date.split('-')[0]}</p>
                         </div>
+                        <button class="play-button" onclick="loadMoviePlayer(${movie.id})">Watch Again</button>
                     </div>
                 `).join('')}
             </div>
@@ -485,6 +473,7 @@ async function loadMoviesPage() {
 
 
 function loadMoviePlayer(movieId) {
+    if (!checkLoggedIn()) return;
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = `
         <div class="movie-player-container">
@@ -508,6 +497,14 @@ async function fetchMovieInfo(movieId) {
         document.getElementById('movie-title').textContent = movie.title;
         document.getElementById('movie-meta').textContent = `${movie.release_date.split('-')[0]} | ${movie.runtime} min | ${movie.genres.map(genre => genre.name).join(', ')}`;
         document.getElementById('movie-overview').textContent = movie.overview;
+        
+        // Add movie to watched list
+        addToWatched({
+            id: movie.id,
+            title: movie.title,
+            poster_path: movie.poster_path,
+            release_date: movie.release_date
+        });
     } catch (error) {
         console.error('Error fetching movie info:', error);
     }
@@ -537,17 +534,30 @@ async function handleRegistration(event) {
     const password = document.getElementById('password').value;
     const apiKey = document.getElementById('api-key').value;
 
-    // Here you would typically send this data to a server for processing
-    // For this example, we'll just store it in localStorage
-    const user = { username, password, apiKey };
-    localStorage.setItem('user', JSON.stringify(user));
+    // Validate API key
+    try {
+        const isValid = await validateApiKey(apiKey);
+        if (!isValid) {
+            alert('Invalid TMDb API Key. Please check and try again.');
+            return;
+        }
+    } catch (error) {
+        console.error('Error validating API key:', error);
+        alert('Error validating API key. Please try again.');
+        return;
+    }
 
-    // Set cookies for the user
-    setCookie('username', username, 365);
-    setCookie('tmdb_api_key', apiKey, 365);
+    // Store user data in localStorage
+    const users = JSON.parse(localStorage.getItem('users') || '{}');
+    if (users[username]) {
+        alert('Username already exists. Please choose a different one.');
+        return;
+    }
+    users[username] = { password, apiKey };
+    localStorage.setItem('users', JSON.stringify(users));
 
     alert('Registration successful!');
-    showLoginForm();
+    loginUser(username, apiKey);
 }
 
 function showLoginForm() {
@@ -572,23 +582,24 @@ function handleLogin(event) {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user && user.username === username && user.password === password) {
-        setCookie('username', username, 365);
-        setCookie('tmdb_api_key', user.apiKey, 365);
-        alert('Login successful!');
-        loadHomePage();
+    const users = JSON.parse(localStorage.getItem('users') || '{}');
+    const user = users[username];
+    if (user && user.password === password) {
+        loginUser(username, user.apiKey);
     } else {
         alert('Invalid username or password');
     }
 }
 
+function loginUser(username, apiKey) {
+    setCookie('username', username, 365);
+    setCookie('tmdb_api_key', apiKey, 365);
+    loadHomePage();
+}
+
 function logout() {
     setCookie('username', '', -1);
     setCookie('tmdb_api_key', '', -1);
-    localStorage.removeItem('user');
-    localStorage.removeItem(`watchlist_${getCookie('username')}`);
-    localStorage.removeItem(`watchedMovies_${getCookie('username')}`);
     showLoginForm();
 }
 
@@ -600,4 +611,14 @@ function checkLoggedIn() {
         return false;
     }
     return true;
+}
+
+async function validateApiKey(apiKey) {
+    try {
+        const response = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`);
+        return response.ok;
+    } catch (error) {
+        console.error('Error validating API key:', error);
+        return false;
+    }
 }
