@@ -6,10 +6,10 @@ Hexa Flix is a modern, responsive web application for streaming movies and TV se
 
 - User authentication (login and registration)
 - Browse popular, newest, action, and comedy movies
-- Search functionality for finding specific movies
 - Detailed movie information pages
 - Add movies to a personal watchlist
 - Keep track of watched movies
+- Search functionality for finding specific movies
 - Responsive design for various screen sizes
 - Integration with The Movie Database (TMDb) API
 
@@ -40,15 +40,19 @@ Hexa Flix is a modern, responsive web application for streaming movies and TV se
 ## Key Functions
 
 - `loadHomePage()`: Loads the main page with movie carousels
-- `loadMovieDetail()`: Displays detailed information about a selected movie
-- `loadMoviePlayer()`: Loads the movie player for watching content
-- `performSearch()`: Handles movie search functionality
-- `loadWatchlist()`: Displays the user's watchlist
-- `loadWatchedMovies()`: Shows the list of movies the user has watched
+- `loadMoviesPage()`: Loads the movies page with various movie carousels
+- `loadMovieDetail(movieId)`: Loads the detailed information page for a specific movie
+- `loadWatchlist()`: Loads the user's watchlist
+- `loadWatchedMovies()`: Loads the user's watched movies
+- `loadUserProfile()`: Loads the user's profile page
+- `logout()`: Logs the user out and clears the current user's data from local storage
+- `hashPassword(password)`: Hashes the password using SHA-256
+- `verifyPassword(inputPassword, storedHash)`: Verifies the input password against the stored hash
 
 ## Authentication
 
-The project uses a simple client-side authentication system for demonstration purposes. In a production environment, you should implement server-side authentication for better security.
+The project uses a client-side authentication system with password hashing for demonstration purposes. In a production environment, you should implement server-side authentication for better security.
+
 
 ## API Integration
 
