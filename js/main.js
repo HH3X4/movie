@@ -185,7 +185,7 @@ async function loadMovieDetail(movieId) {
                     </div>
                     <p class="movie-description">${movie.overview}</p>
                     <button class="play-button" onclick="loadMoviePlayer(${movie.id})">Watch Now</button>
-                    <button class="watchlist-button" onclick="addToWatchlist(${JSON.stringify(movie)})">Add to Watchlist</button>
+                    <button class="watchlist-button" onclick="addToWatchlist({id: ${movie.id}, title: '${movie.title}', poster_path: '${movie.poster_path}', release_date: '${movie.release_date}'})">Add to Watchlist</button>
                 </div>
             </div>
         `;
@@ -265,13 +265,13 @@ function loadWatchlist() {
             <h1>My Watchlist</h1>
             <div class="watchlist-grid">
                 ${watchlist.map(movie => `
-                    <div class="watchlist-card" onclick="loadMovieDetail(${movie.id})">
-                        <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
+                    <div class="watchlist-card">
+                        <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}" onclick="loadMovieDetail(${movie.id})">
                         <div class="watchlist-card-info">
                             <h3>${movie.title}</h3>
                             <p>${movie.release_date.split('-')[0]}</p>
                         </div>
-                        <button class="remove-button" onclick="removeFromWatchlist(${movie.id}); event.stopPropagation();">Remove</button>
+                        <button class="remove-button" onclick="removeFromWatchlist(${movie.id})">Remove</button>
                     </div>
                 `).join('')}
             </div>
