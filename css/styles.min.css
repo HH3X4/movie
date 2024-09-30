@@ -1,13 +1,16 @@
 :root {
-    --primary-color: #e50914;
-    --secondary-color: #141414;
-    --background-color: #000000;
-    --surface-color: #222222;
-    --text-color: #ffffff;
-    --text-secondary-color: #b3b3b3;
-    --hover-color: #ff3d3d;
-    --accent-color: #e50914;
-    --gradient-overlay: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.8) 100%);
+    --primary-color: #4a90e2;
+    --secondary-color: #2c3e50;
+    --background-color: #f5f7fa;
+    --surface-color: #ffffff;
+    --text-color: #333333;
+    --text-secondary-color: #7f8c8d;
+    --accent-color: #e74c3c;
+    --hover-color: #3498db;
+    --card-background: #ecf0f1;
+    --card-hover-background: #bdc3c7;
+    --button-color: #4a90e2;
+    --button-hover-color: #3498db;
 }
 
 * {
@@ -50,19 +53,19 @@ main {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 4%;
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: var(--surface-color);
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
     backdrop-filter: blur(10px);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .logo a {
     color: var(--primary-color);
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     text-decoration: none;
     text-transform: uppercase;
@@ -100,7 +103,7 @@ main {
 }
 
 .nav-links a:hover {
-    color: var(--accent-color);
+    color: var(--primary-color);
     transform: translateY(-2px);
 }
 
@@ -113,7 +116,7 @@ main {
     align-items: center;
     justify-content: center;
     margin: 0 auto;
-    max-width: 400px;
+    max-width: 600px;
     width: 100%;
     padding: 0.5rem;
     background-color: var(--surface-color);
@@ -127,7 +130,7 @@ main {
     border: none;
     background-color: transparent;
     color: var(--text-color);
-    border-radius: 50px;
+    border-radius: 50px 0 0 50px;
     outline: none;
     font-size: 1rem;
 }
@@ -244,13 +247,15 @@ main {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     overflow: hidden;
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    background-color: var(--card-background);
 }
 
 .movie-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    background-color: var(--card-hover-background);
 }
 
 .movie-card img {
@@ -266,9 +271,9 @@ main {
     left: 0;
     right: 0;
     padding: 1rem;
-    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+    background-color: var(--surface-color);
     border-radius: 0 0 8px 8px;
-    text-align: left;
+    text-align: center;
     transition: opacity 0.3s ease;
     opacity: 0;
 }
@@ -278,7 +283,7 @@ main {
 }
 
 .movie-info h3 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     margin-bottom: 0.5rem;
     white-space: nowrap;
     overflow: hidden;
@@ -304,9 +309,9 @@ main {
 }
 
 .movie-detail-img img {
-    width: 100%;
+    width: 300px;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
 }
 
 .movie-detail-content {
@@ -314,17 +319,20 @@ main {
 }
 
 .movie-detail-content h1 {
-    font-size: 3.5rem;
-    margin-bottom: 1rem;
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
     color: var(--text-color);
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     font-weight: 700;
 }
 
 .movie-meta {
-    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+}
+
+.movie-meta p {
+    margin-bottom: 0.8rem;
     color: var(--text-secondary-color);
-    margin-bottom: 1rem;
 }
 
 .movie-rating {
@@ -346,16 +354,13 @@ main {
 }
 
 .movie-description {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-    color: var(--text-color);
+    margin-bottom: 2.5rem;
 }
 
 .play-button, .watchlist-button {
     padding: 0.8rem 1.5rem;
     font-size: 1rem;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     margin-right: 1rem;
@@ -363,15 +368,15 @@ main {
 }
 
 .play-button {
-    background-color: var(--primary-color);
-    color: var(--text-color);
+    background-color: var(--button-color);
+    color: var(--surface-color);
     border: none;
 }
 
 .watchlist-button {
     background-color: transparent;
-    color: var(--text-color);
-    border: 2px solid var(--text-color);
+    color: var(--button-color);
+    border: 2px solid var(--button-color);
 }
 
 .play-button:hover, .watchlist-button:hover {
@@ -380,11 +385,12 @@ main {
 }
 
 .play-button:hover {
-    background-color: var(--hover-color);
+    background-color: var(--button-hover-color);
 }
 
 .watchlist-button:hover {
-    background-color: rgba(0, 183, 255, 0.1);
+    background-color: var(--button-color);
+    color: var(--surface-color);
 }
 
 /* Movies Page */
@@ -455,6 +461,10 @@ main {
     gap: 2rem;
 }
 
+.movies-grid .movie-card {
+    width: 100%;
+}
+
 .loading-spinner {
     text-align: center;
     margin-top: 2rem;
@@ -462,10 +472,11 @@ main {
 
 /* Footer */
 footer {
-    background-color: var(--secondary-color);
+    background-color: var(--background-color);
     color: var(--text-secondary-color);
     text-align: center;
-    padding: 2rem 0;
+    padding: 1rem 0;
+    font-size: 0.9rem;
     margin-top: 4rem;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
