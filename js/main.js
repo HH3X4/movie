@@ -636,3 +636,39 @@ async function verifyPassword(inputPassword, storedHash) {
     const inputHash = await hashPassword(inputPassword);
     return inputHash === storedHash;
 }
+
+function loadUserProfile() {
+    if (!checkLoggedIn()) return;
+    const username = getCookie('username');
+    const watchlist = JSON.parse(localStorage.getItem(`watchlist_${username}`)) || [];
+    const watchedMovies = JSON.parse(localStorage.getItem(`watchedMovies_${username}`)) || [];
+
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <div class="user-profile">
+            <h1>${username}'s Profile</h1>
+            <div class="user-stats">
+                <p>Movies Watched: ${watchedMovies.length}</p>
+                <p>Watchlist: ${watchlist.length} movies</p>
+            </div>
+            <h2>Watchlist</h2>
+            <div class="movie-grid">
+                ${watchlist.map(movie => `
+                    <div class="movie-card" onclick="loadMovieDetail(${movie.id})">
+                        <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
+                        <h3>${movie.title}</h3>
+                    </div>
+                `).join('')}
+            </div>
+            <h2>Watched Movies</h2>
+            <div class="movie-grid">
+                ${watchedMovies.map(movie => `
+                    <div class="movie-card" onclick="loadMovieDetail(${movie.id})">
+                        <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
+                        <h3>${movie.title}</h3>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
