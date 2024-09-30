@@ -307,7 +307,8 @@ async function performSearch(query) {
 
 // Watchlist functionality
 function loadWatchlist() {
-    const watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
+    const username = getCookie('username');
+    const watchlist = JSON.parse(localStorage.getItem(`watchlist_${username}`)) || [];
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = `
         <div class="watchlist-container">
@@ -329,17 +330,19 @@ function loadWatchlist() {
 }
 
 function isInWatchlist(movieId) {
-    const watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
+    const username = getCookie('username');
+    const watchlist = JSON.parse(localStorage.getItem(`watchlist_${username}`)) || [];
     return watchlist.some(movie => movie.id === movieId);
 }
 
 async function toggleWatchlist(movieId) {
-    let watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
+    const username = getCookie('username');
+    let watchlist = JSON.parse(localStorage.getItem(`watchlist_${username}`)) || [];
     const isAlreadyInWatchlist = watchlist.some(movie => movie.id === movieId);
     
     if (isAlreadyInWatchlist) {
         watchlist = watchlist.filter(movie => movie.id !== movieId);
-        localStorage.setItem('watchlist', JSON.stringify(watchlist));
+        localStorage.setItem(`watchlist_${username}`, JSON.stringify(watchlist));
         alert('Movie removed from watchlist!');
     } else {
         const movie = await fetchFromTMDb(`movie/${movieId}`);
@@ -349,7 +352,7 @@ async function toggleWatchlist(movieId) {
             poster_path: movie.poster_path,
             release_date: movie.release_date
         });
-        localStorage.setItem('watchlist', JSON.stringify(watchlist));
+        localStorage.setItem(`watchlist_${username}`, JSON.stringify(watchlist));
         alert('Movie added to watchlist!');
     }
     // Refresh the current page
@@ -362,16 +365,18 @@ async function toggleWatchlist(movieId) {
 
 // Add movie to watched list
 function addToWatched(movie) {
-    let watchedMovies = JSON.parse(getCookie('watchedMovies') || '[]');
+    const username = getCookie('username');
+    let watchedMovies = JSON.parse(localStorage.getItem(`watchedMovies_${username}`)) || [];
     if (!watchedMovies.some(m => m.id === movie.id)) {
         watchedMovies.push(movie);
-        setCookie('watchedMovies', JSON.stringify(watchedMovies), 365);
+        localStorage.setItem(`watchedMovies_${username}`, JSON.stringify(watchedMovies));
     }
 }
 
 // Load watched movies page
 function loadWatchedMovies() {
-    const watchedMovies = JSON.parse(localStorage.getItem('watchedMovies')) || [];
+    const username = getCookie('username');
+    const watchedMovies = JSON.parse(localStorage.getItem(`watchedMovies_${username}`)) || [];
     const mainContent = document.getElementById('main-content');
     mainContent.innerHTML = `
         <div class="watched-movies-container">
@@ -415,9 +420,9 @@ function setupEventListeners() {
 
 // Initialize the application
 function init() {
-    const apiKey = getApiKey();
-    if (!apiKey) {
-        showApiKeyForm();
+    const username = getCookie('username');
+    if (!username) {
+        showLoginForm();
     } else {
         loadHomePage();
     }
@@ -552,4 +557,81 @@ async function fetchMovieInfo(movieId) {
     } catch (error) {
         console.error('Error fetching movie info:', error);
     }
+}
+
+function showRegistrationForm() {
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <div class="auth-form-container">
+            <h1>Register</h1>
+            <form id="register-form">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <input type="text" id="api-key" placeholder="TMDb API Key" required>
+                <button type="submit">Register</button>
+            </form>
+            <p>Already have an account? <a href="#" onclick="showLoginForm()">Login</a></p>
+        </div>
+    `;
+
+    document.getElementById('register-form').addEventListener('submit', handleRegistration);
+}
+
+async function handleRegistration(event) {
+    event.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const apiKey = document.getElementById('api-key').value;
+
+    // Here you would typically send this data to a server for processing
+    // For this example, we'll just store it in localStorage
+    const user = { username, password, apiKey };
+    localStorage.setItem('user', JSON.stringify(user));
+
+    // Set cookies for the user
+    setCookie('username', username, 365);
+    setCookie('tmdb_api_key', apiKey, 365);
+
+    alert('Registration successful!');
+    showLoginForm();
+}
+
+function showLoginForm() {
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <div class="auth-form-container">
+            <h1>Login</h1>
+            <form id="login-form">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <p>Don't have an account? <a href="#" onclick="showRegistrationForm()">Register</a></p>
+        </div>
+    `;
+
+    document.getElementById('login-form').addEventListener('submit', handleLogin);
+}
+
+function handleLogin(event) {
+    event.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.username === username && user.password === password) {
+        setCookie('username', username, 365);
+        setCookie('tmdb_api_key', user.apiKey, 365);
+        alert('Login successful!');
+        loadHomePage();
+    } else {
+        alert('Invalid username or password');
+    }
+}
+
+function logout() {
+    setCookie('username', '', -1);
+    setCookie('tmdb_api_key', '', -1);
+    localStorage.removeItem('user');
+    showLoginForm();
 }
