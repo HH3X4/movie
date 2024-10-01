@@ -8,30 +8,35 @@
     <meta name="author" content="Hexa Flix">
     <title>Hexa Flix</title>
     <link rel="stylesheet" href="css/styles.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOM6phTITWR/QuB5Cjh9MEjw/7BzSFMfRt9ONfi" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
         <div class="nav-container">
             <div class="logo">
-                <a href="#" onclick="loadHomePage()">Hexa Flix</a>
+                <a href="#" onclick="loadHomePage()">
+                    <span class="hexa">Hexa</span><span class="flix">Flix</span>
+                </a>
             </div>
             <nav>
                 <ul class="nav-links">
-                    <li><a href="#" onclick="loadHomePage()">Home</a></li>
-                    <li><a href="#" onclick="loadMoviesPage()">Movies</a></li>
-                    <li><a href="#" onclick="loadWatchlist()">My Watchlist</a></li>
-                    <li><a href="#" onclick="loadWatchedMovies()">Watched Movies</a></li>
-                    <li><a href="#" onclick="logout()">Logout</a></li>
-                    <li><a href="#" onclick="loadUserProfile()">My Profile</a></li>
+                    <li><a href="#" onclick="loadHomePage()"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#" onclick="loadMoviesPage()"><i class="fas fa-film"></i> Movies</a></li>
+                    <li><a href="#" onclick="loadWatchlist()"><i class="fas fa-list"></i> Watchlist</a></li>
+                    <li><a href="#" onclick="loadWatchedMovies()"><i class="fas fa-check-circle"></i> Watched</a></li>
+                    <li><a href="#" onclick="loadUserProfile()"><i class="fas fa-user"></i> Profile</a></li>
                 </ul>
             </nav>
             <div class="search-container">
-                <form id="search-form">
-                    <input type="text" name="query" placeholder="Search movies or series..." required>
-                </form>            
-            </div>            
+                <form id="search-form" onsubmit="searchMovies(event)">
+                    <input type="text" id="search-input" placeholder="Search movies">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+            <div class="user-actions">
+                <a href="#" onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
         </div>
     </header>
 
@@ -40,8 +45,35 @@
     </main>
 
     <footer>
-        <p>&copy; 2024 Hexa Flix. All rights reserved.</p>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <span class="hexa">Hexa</span><span class="flix">Flix</span>
+            </div>
+            <div class="footer-links">
+                <a href="#" onclick="loadHomePage()">Home</a>
+                <a href="#" onclick="loadMoviesPage()">Movies</a>
+                <a href="#" onclick="loadWatchlist()">Watchlist</a>
+                <a href="#" onclick="loadWatchedMovies()">Watched</a>
+                <a href="#" onclick="loadTermsOfService()">Terms of Service</a>
+                <a href="#" onclick="loadPrivacyPolicy()">Privacy Policy</a>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 Hexa Flix. All rights reserved.</p>
+            </div>
+        </div>
     </footer>
+
     <script src="js/main.js"></script>
+    <div class="floating-bubbles">
+        <div class="bubble" style="width: 50px; height: 50px; left: 10%; animation-duration: 20s;"></div>
+        <div class="bubble" style="width: 30px; height: 30px; left: 20%; animation-duration: 18s;"></div>
+        <div class="bubble" style="width: 40px; height: 40px; left: 30%; animation-duration: 16s;"></div>
+        <div class="bubble" style="width: 60px; height: 60px; left: 40%; animation-duration: 14s;"></div>
+        <div class="bubble" style="width: 35px; height: 35px; left: 50%; animation-duration: 12s;"></div>
+        <div class="bubble" style="width: 45px; height: 45px; left: 60%; animation-duration: 10s;"></div>
+        <div class="bubble" style="width: 55px; height: 55px; left: 70%; animation-duration: 22s;"></div>
+        <div class="bubble" style="width: 25px; height: 25px; left: 80%; animation-duration: 24s;"></div>
+    </div>
+    <div id="custom-scrollbar"><div id="custom-scrollbar-thumb"></div></div>
 </body>
 </html>
