@@ -24,7 +24,7 @@ Hexa Flix is a modern, responsive web application for streaming movies and TV se
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/hexa-flix.git
+   git clone https://github.com/H3X44/hexaflix.git
    ```
 
 2. Open the `index.html` file in your web browser.
